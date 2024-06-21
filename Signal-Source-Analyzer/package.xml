@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+InfoLink: Specifies a location where additional information about the package can be found.
+Version: The version of the package. Must be in a semver 2.0 compatible format. This can be automatically updated from GIT.
+
+For Version the following macro is available (Only works if the project directory is under Git source control):
+$(GitVersion) - Gets the version from Git in the recommended format Major.Minor.Build-PreRelease+CommitHash.BranchName.
+-->
+<Package Name="Signal Source Analyzer" xmlns="http://opentap.io/schemas/package" Version="$(GitVersion)" OS="Windows,Linux">
+	<Description>OpenTAP plugin for SSA-X Measurements.
+		<Hardware> E5055A, E5056A, E5057A, E5058A</Hardware>
+	</Description>
+	<SourceUrl>https://github.com/opentap/Signal-Source-Analyzer</SourceUrl>
+	<SourceLicense>MIT</SourceLicense>
+	<Files>
+    <File Path="Packages/Signal_Source_Analyzer/Signal_Source_Analyzer.dll" SourcePath="Signal_Source_Analyzer.dll">
+        <SetAssemblyInfo Attributes="Version"/>
+    </File>
+  </Files>
+</Package>

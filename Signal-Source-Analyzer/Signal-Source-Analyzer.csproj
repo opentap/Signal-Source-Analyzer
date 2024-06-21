@@ -1,0 +1,61 @@
+﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+  <PropertyGroup>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+    <TargetFrameworkIdentifier></TargetFrameworkIdentifier>
+    <TargetFrameworkVersion></TargetFrameworkVersion>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <DebugWith>Editor</DebugWith>
+  </PropertyGroup>
+    
+  <PropertyGroup>
+    <OpenTapPackageDefinitionPath>package.xml</OpenTapPackageDefinitionPath>
+    <CreateOpenTapPackage>false</CreateOpenTapPackage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <CreateOpenTapPackage>true</CreateOpenTapPackage>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(OS)' == 'WINDOWS_NT' AND '$(Configuration)' == 'Debug'">
+    <!--
+      We target .NET Framework in debug builds when debugging with the WPF Editor due to a bug in Visual Studio's debugger.
+      The debugger assumes that netstandard projects should be debugged as .NET Core apps, and thus launches a .NET Core debugger
+      which fails to attach because tap.exe is a .NET Framework application.
+
+      To ensure maximum compatibility, we recommend targetting netstandard2.0 in release builds, unless you need specific
+      APIs that are not available in netstandard2.0.
+    -->
+    <TargetFramework>net472</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="Instrument\PNAMath.cs" />
+    <Compile Remove="Instrument\PNAStandard.cs" />
+    <Compile Remove="Instrument\SSAXMarkerSearch.cs" />
+    <Compile Remove="Instrument\SSAXSpectrumAnalyzer.cs" />
+    <Compile Remove="Instrument\SSAXTraces.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTAP" Version="9.24.2-rc.1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DebugWith)' == 'TUI' AND '$(Configuration)' == 'Debug'">
+    <OpenTapPackageReference Include="TUI" version="1" />
+  </ItemGroup>
+
+  <ItemGroup Condition="'$(DebugWith)' == 'Editor' AND '$(Configuration)' == 'Debug'">
+    <OpenTapPackageReference Include="Editor" version="9" />
+	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="General\VCO Characterization\" />
+    <Folder Include="General\Transient\" />
+    <Folder Include="General\Spectrum Analyzer\" />
+  </ItemGroup>
+
+</Project>
