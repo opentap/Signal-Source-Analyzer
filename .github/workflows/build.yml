@@ -48,7 +48,7 @@ jobs:
         name: TapPackage
         retention-days: 14
         path: |
-          Signal-Source-Analyzer/bin/Release/*.TapPackage
+          Signal-Source-Analyzer/Signal-Source-Analyzer/bin/Release/*.TapPackage
 
   publish:
     runs-on: ubuntu-20.04
