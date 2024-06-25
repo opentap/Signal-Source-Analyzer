@@ -32,6 +32,9 @@ jobs:
       run: |
         echo "${{ secrets.SIGN_SERVER_CERT }}" > $TAP_SIGN_CERT
         dotnet build -c Release
+        pwd
+        ls -laR
+
       env:
         TAP_SIGN_ADDRESS: ${{ secrets.TAP_SIGN_ADDRESS }}
         TAP_SIGN_AUTH: ${{ secrets.TAP_SIGN_AUTH }}
