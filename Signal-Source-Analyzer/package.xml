@@ -13,8 +13,8 @@ $(GitVersion) - Gets the version from Git in the recommended format Major.Minor.
 	<SourceUrl>https://github.com/opentap/Signal-Source-Analyzer</SourceUrl>
 	<SourceLicense>MIT</SourceLicense>
 	<Files>
-    <File Path="Packages/Signal_Source_Analyzer/Signal_Source_Analyzer.dll" SourcePath="Signal_Source_Analyzer.dll">
-        <SetAssemblyInfo Attributes="Version"/>
-    </File>
-  </Files>
+    	<File Path="Packages/Signal_Source_Analyzer/Signal_Source_Analyzer.dll" SourcePath="Signal_Source_Analyzer.dll">
+        	<SetAssemblyInfo Attributes="Version"/>
+    	</File>
+  	</Files>
 </Package>
