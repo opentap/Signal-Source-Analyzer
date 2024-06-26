@@ -1,23 +1,25 @@
-﻿<Project Sdk="Microsoft.NET.Sdk" ToolsVersion="Current">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
-    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-    <TargetFrameworkIdentifier></TargetFrameworkIdentifier>
-    <TargetFrameworkVersion></TargetFrameworkVersion>
+    <OutputType>Library</OutputType>
     <TargetFramework>netstandard2.0</TargetFramework>
     <DebugWith>Editor</DebugWith>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="OpenTAP" Version="9.24.0" />
+   	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.3" />
+    <OpenTapPackageReference Include="OpenTAP"/>
+  </ItemGroup>
     
-  <PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
     <OpenTapPackageDefinitionPath>package.xml</OpenTapPackageDefinitionPath>
     <CreateOpenTapPackage>false</CreateOpenTapPackage>
   </PropertyGroup>
 
-  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
-    <CreateOpenTapPackage>true</CreateOpenTapPackage>
-  </PropertyGroup>
+  <ItemGroup Condition="'$(Configuration)' == 'Release'">
+    <AdditionalOpenTapPackage Include="Sign" Repository="https://test-automation.pw.keysight.com/api/packages" Version="1.4.0" Token="$(Ks8500Token)"/>
+  </ItemGroup>
 
   <PropertyGroup Condition="'$(OS)' == 'WINDOWS_NT' AND '$(Configuration)' == 'Debug'">
     <!--
@@ -31,9 +33,7 @@
     <TargetFramework>net472</TargetFramework>
   </PropertyGroup>
 
-  <ItemGroup>
-    <PackageReference Include="OpenTAP" Version="9.24.2-rc.1" />
-  </ItemGroup>
+  
 
   <ItemGroup Condition="'$(DebugWith)' == 'TUI' AND '$(Configuration)' == 'Debug'">
     <OpenTapPackageReference Include="TUI" version="1" />
@@ -41,7 +41,5 @@
 
   <ItemGroup Condition="'$(DebugWith)' == 'Editor' AND '$(Configuration)' == 'Debug'">
     <OpenTapPackageReference Include="Editor" version="9" />
-	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.3" />
   </ItemGroup>
-
 </Project>
