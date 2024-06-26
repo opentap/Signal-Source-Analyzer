@@ -2,38 +2,33 @@
 
 
 Map vaultConfiguration = [
-    vaultUrl: 'https://vault.ksfdevops.keysight.com',
-    vaultCredentialId: 'vault-approle',
-    engineVersion: 1
+    engineVersion: 2,
+    timeout: 60,
+    vaultUrl: 'https://vault.keysight.com',
+    vaultCredentialId: 'vault-approle'
 ]
  
 ArrayList<Map> vaultSecrets = [
     [
-        engineVersion: 1,
-        path: 'kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer', 
+        engineVersion: 2,
+        path: 'kosi-devops/team-opentapplugin/accounts/CBCI-opentapplugin', 
         secretValues: [
              [envVar: 'Ks8500Token', vaultKey: 'repo-pathwave-token'],
              [envVar: 'VmtApiKey', vaultKey: 'vmt-jwt-token']
         ]
     ]
 ]
-// =====================================================================
-// CUSTOMIZATION_TODO
-// =====================================================================
-// groovylint-disable-next-line
-//@Library('KOSi Pipeline Library@v5.2.1') _
-@Library('KOSi Pipeline Library@feature/nessus-scan-timeout') _
 
-// =====================================================================
-// CUSTOMIZATION_TODO
-// =====================================================================
+// groovylint-disable-next-line
+@Library('KOSi Pipeline Library@v5.3.1') _
+
 Map projectConfig =
 [
     'vmtProjectId': '699',
-    'vmtVersionId': '',
-    'vmtTargetVm': '127.0.0.1',
+    'vmtVersionId': 'placeHolderA',
+    'vmtTargetVm': '',
     'jobFullName': '',
-    'projectName': 'SSA-X',
+    'projectName': 'placeholderB',
     'scanAgentLabel': 'windows',
     
     'logLevel': 'debug',
@@ -70,14 +65,6 @@ pipeline
         }
     }
 
-    // // =====================================================================
-    // // CUSTOMIZATION_TODO
-    // // =====================================================================
-    // triggers
-    // {
-    //     cron 'H H 1,16 * *'
-    // }
-
     options
     {
         disableConcurrentBuilds()
@@ -85,13 +72,6 @@ pipeline
         skipDefaultCheckout true
         timestamps()
     }
-
-    // Use environment for Jenkinsfile template to simplify inserting
-    // custom shell/batch scripts
-    // environment
-    // {
-    //     CUSTOMIZION_TODO
-    // }
 
     stages
     {
@@ -125,18 +105,12 @@ pipeline
                         [packageType: 'dotnet']
                     ]
                     PipelineStagePrepare(projectConfig, packageConfigs)
-                    // =========================================================
-                    // CUSTOMIZATION_TODO
-                    // =========================================================
                 }
             }
         }
 
         stage('Build software')
         {
-            environment {
-                OpenTapVersion = '9.23.0'
-            }
             agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
             steps
             {
@@ -144,28 +118,23 @@ pipeline
                 {
                     script
                     {
-                        echo "restore OpenTAP dependencies"              
-                        debugOutput = powershell(script: """
-                            # add package feed
-                            dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-
-                            # build plugin
-                            dotnet build -c Release
-
-                            # build package
-                            pushd .\\Signal-Source-Analyzer\\bin\\Release
-                            .\\tap package create ..\\..\\package.xml
-                            popd                    
-                            """, returnStdout: true).trim()
-
-                        echo "${debugOutput}"
-                       
+                        echo "Build project"              
+                        powershell """
+                            dotnet build -c Release --property:Ks8500Token="\$env:Ks8500Token"
+                            """
                         version = powershell(script: """
-                            write-output((.\\Signal-Source-Analyzer\\bin\\Release\\tap sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
+                            \$tapPath=\$(dir -r tap.exe) | Where-Object { \$_.Directory.FullName -match "Release" } | Select-Object -ExpandProperty FullName
+                            write-output((& \$tapPath sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
                             """, returnStdout: true).trim()
-                        echo "${version}"
+                        echo "Version: ${version}"
+                        tapPath = powershell(script: """
+                            \$tapPath=\$(dir -r tap.exe) | Where-Object { \$_.Directory.FullName -match "Release" } | Select-Object -ExpandProperty FullName
+                            write-output(\$tapPath)
+                            """, returnStdout: true).trim()
+                        echo "TAP Path: ${tapPath}"
+                        
+                        projectConfig.projectName = "${env.JOB_BASE_NAME}" 
                     }
-
                 }
             }
         }
@@ -197,78 +166,98 @@ pipeline
                             write-output(\$versionId)
                             """, returnStdout: true).trim()
 
-                        projectConfig['vmtVersionId'] = "${versionId}"
+                        projectConfig.vmtVersionId = "${versionId}"
                     }
                 }
             }            
         }
 
-        stage('VMT Scan 1')
+        stage('VMT Base Scan')
         {
             agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
             steps
             {
                 script
-                {   
-                    projectConfig['jobFullName'] = "${projectConfig.projectName}-${version}-base" 
-                    startTap = sh(script: """
-                        export JENKINS_NODE_COOKIE=dontKillMe
-                        nohup .\\\\Signal-Source-Analyzer\\\\bin\\\\Release\\\\tap run --ignore-load-errors -v .\\\\.jenkins\\\\test\\\\pause_8hours.TapPlan > output.log 2>&1 &
-                        echo \$! > pid.txt
-                        echo pid.txt 
-                        """, returnStdout: true).trim()
-                    echo "${startTap}"             
+                {                 
+                    def stageIp = powershell(script: '(Get-NetIPAddress -AddressFamily IPv4 -PrefixOrigin Dhcp).IPAddress', returnStdout: true).trim()
+                    echo "Stage IP: '${stageIp}'"
+                    projectConfig.vmtTargetVm = stageIp
+
+                    echo "Start TAP before base scan"
+                    powershell """
+                        \$env:JENKINS_NODE_COOKIE="dontKillMe"
+                        Start-Process -WindowStyle Hidden -FilePath "${tapPath}" -ArgumentList "run --ignore-load-errors -v .\\.jenkins\\pause_8hours.TapPlan"
+                        """
+                    sleep time: 30, unit: 'SECONDS'
+         
+                    echo "Base scan"
+                    projectConfig.jobFullName = "${projectConfig.projectName}-${version}-base" 
+ 
                     NessusScan(projectConfig)
-                    endTap = sh(script: """
-                        echo "Make sure job is still running..."
-                        ps -a
-                        cat pid.txt
-                        kill -9 \$(cat pid.txt) && rm pid.txt
-                        echo "Killed job"
-                        ps -a
-                        """, returnStdout: true).trim()
-                    echo "${endTap}"
-                }                
+ 
+                    echo "Base scan done"
+                    echo "Kill TAP after base scan"
+                    powershell """
+                        & taskkill /F /T /IM tap.exe
+                        """
+                }
             }
         }
 
-        stage('VMT Scan 2')
+        stage('Install plugin')
         {
             agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
             steps
             {
                 script
-                {   
-                    projectConfig['jobFullName'] = "${projectConfig.projectName}-${version}-diffscan" 
+                {                 
+                    echo "Install plugin"
                     powershell """
-                        .\\Signal-Source-Analyzer\\bin\\Release\\tap package install "Signal Source Analyzer" -r .\\Signal-Source-Analyzer\\bin\\Release --version $version
+                        \$(dir -r *.TapPackage) | ForEach-Object {& "${tapPath}" package install \$_.FullName}
                         """
-                    startTap2 = sh(script: """
-                        export JENKINS_NODE_COOKIE=dontKillMe
-                        nohup .\\\\Signal-Source-Analyzer\\\\bin\\\\Release\\\\tap run --ignore-load-errors -v .\\\\.jenkins\\\\test\\\\pause_8hours.TapPlan > output.log 2>&1 &
-                        echo \$! > pid.txt
-                        echo pid.txt 
-                        """, returnStdout: true).trim()
-                    echo "${startTap2}"             
+                }
+            }
+        }
+
+        stage('Refresh the Vault token')
+        {
+            steps
+            {
+                InsertVaultTokenViaJava(projectConfig)
+            }
+        }
+
+        stage('VMT Diff Scan')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {                 
+                    echo "Start TAP before diff scan"
+                    powershell """
+                        \$env:JENKINS_NODE_COOKIE="dontKillMe"
+                        Start-Process -WindowStyle Hidden -FilePath "${tapPath}" -ArgumentList "run --ignore-load-errors -v .\\.jenkins\\pause_8hours.TapPlan"
+                        """
+                    sleep time: 30, unit: 'SECONDS'
+
+                    echo "Diff scan"
+                    projectConfig.jobFullName = "${projectConfig.projectName}-${version}-diffscan" 
+                    
                     NessusScan(projectConfig)
-                    endTap2 = sh(script: """
-                        echo "Make sure job is still running..."
-                        ps -a
-                        cat pid.txt
-                        kill -9 \$(cat pid.txt) && rm pid.txt
-                        echo "Killed job"
-                        ps -a
-                        """, returnStdout: true).trim()
-                    echo "${endTap2}"                        
+                    
+                    echo "Diff scan done"
+                    echo "Kill TAP after diff scan"
+                    powershell """
+                        & taskkill /F /T /IM tap.exe
+                        """
                 }
             }
         }
     }
+
     post
     {
-        // =====================================================================
-        // CUSTOMIZATION_TODO
-        // =====================================================================
         always
         {
             script
@@ -278,13 +267,3 @@ pipeline
         }
     }
 }
-
-// =====================================================================
-// Other private methods/steps for custom stages
-// =====================================================================
-
-
-
-// =====================================================================
-// Developer Notes
-// =====================================================================

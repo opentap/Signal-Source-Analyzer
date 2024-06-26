@@ -2,39 +2,34 @@
 
 
 Map vaultConfiguration = [
-    vaultUrl: 'https://vault.ksfdevops.keysight.com',
-    vaultCredentialId: 'vault-approle',
-    engineVersion: 1
+    engineVersion: 2,
+    timeout: 60,
+    vaultUrl: 'https://vault.keysight.com',
+    vaultCredentialId: 'vault-approle'
 ]
  
 ArrayList<Map> vaultSecrets = [
     [
-        engineVersion: 1,
-        path: 'kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer',
+        engineVersion: 2,
+        path: 'kosi-devops/team-opentapplugin/accounts/CBCI-opentapplugin',
         secretValues: [
              [envVar: 'Ks8500Token', vaultKey: 'repo-pathwave-token'],
         ]
     ]
 ]
-// =====================================================================
-// CUSTOMIZATION_TODO
-// =====================================================================
-// groovylint-disable-next-line
-//@Library('KOSi Pipeline Library@v5.1.2') _
-@Library('KOSi Pipeline Library@v5.1.2') _
 
-// =====================================================================
-// CUSTOMIZATION_TODO
-// =====================================================================
+// groovylint-disable-next-line
+@Library('KOSi Pipeline Library@v5.3.1') _
+
 Map projectConfig =
 [
     'blackDuck': [
         'plcStage': 'Released'
     ],
     'scanAgentLabel': 'windows',
-    'projectName': 'SignalSourceAnalyzerPlugin',
+    'projectName': 'placeholderA',
     'versionInfo': [
-        'version':  'placeholder'
+        'version':  'placeholderB'
     ],
     'sourceDirectory': '.',
     'logLevel': 'debug',
@@ -69,14 +64,6 @@ pipeline
         }
     }
 
-    // // =====================================================================
-    // // CUSTOMIZATION_TODO
-    // // =====================================================================
-    // triggers
-    // {
-    //     cron 'H H 1,16 * *'
-    // }
-
     options
     {
         disableConcurrentBuilds()
@@ -84,13 +71,6 @@ pipeline
         skipDefaultCheckout true
         timestamps()
     }
-
-    // Use environment for Jenkinsfile template to simplify inserting
-    // custom shell/batch scripts
-    // environment
-    // {
-    //     CUSTOMIZION_TODO
-    // }
 
     stages
     {
@@ -124,18 +104,12 @@ pipeline
                         [packageType: 'dotnet']
                     ]
                     PipelineStagePrepare(projectConfig, packageConfigs)
-                    // =========================================================
-                    // CUSTOMIZATION_TODO
-                    // =========================================================
                 }
             }
         }
 
         stage('Build software')
         {
-            environment {
-                OpenTapVersion = '9.23.0'
-            }
             agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
             steps
             {
@@ -143,27 +117,19 @@ pipeline
                 {
                     script
                     {
-                        echo "restore OpenTAP dependencies"              
+                        echo "Build project"              
                         powershell """
-                            # add package feed
-                            dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
-
-                            # build plugin
-                            dotnet build -c Release
-
-                            # build package
-                            pushd .\\Signal-Source-Analyzer\\bin\\Release
-                            .\\tap package create ..\\..\\package.xml
-                            popd                    
+                            dotnet build -c Release --property:Ks8500Token="\$env:Ks8500Token"
                             """
-                        
                         version = powershell(script: """
-                            write-output((.\\Signal-Source-Analyzer\\bin\\Release\\tap sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
+                            \$tapPath=\$(dir -r tap.exe) | Where-Object { \$_.Directory.FullName -match "Release" } | Select-Object -ExpandProperty FullName
+                            write-output((& \$tapPath sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
                             """, returnStdout: true).trim()
+                        echo "Version: ${version}"
 
-                        projectConfig['versionInfo']['version'] = "${projectConfig.projectName}-${version}" 
+                        projectConfig.projectName = "${env.JOB_BASE_NAME}" 
+                        projectConfig.versionInfo.version = "${projectConfig.projectName}-${version}" 
                     }
-
                 }
             }
         }
@@ -176,18 +142,16 @@ pipeline
                 script
                 {                    
                     projectConfig.scanAgent = env.NODE_NAME
-                    projectConfig.projectScanName = projectConfig['versionInfo']['version']
-                    projectConfig.projectVersionName = projectConfig['versionInfo']['version']
+                    projectConfig.projectScanName = projectConfig.versionInfo.version
+                    projectConfig.projectVersionName = projectConfig.versionInfo.version
                     BlackDuckScan(projectConfig)
                 }
             }
         }
     }
+    
     post
     {
-        // =====================================================================
-        // CUSTOMIZATION_TODO
-        // =====================================================================
         always
         {
             script
@@ -197,13 +161,3 @@ pipeline
         }
     }
 }
-
-// =====================================================================
-// Other private methods/steps for custom stages
-// =====================================================================
-
-
-
-// =====================================================================
-// Developer Notes
-// =====================================================================
