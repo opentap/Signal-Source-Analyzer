@@ -1,0 +1,290 @@
+// groovylint-disable ConsecutiveBlankLines
+
+
+Map vaultConfiguration = [
+    vaultUrl: 'https://vault.ksfdevops.keysight.com',
+    vaultCredentialId: 'vault-approle',
+    engineVersion: 1
+]
+ 
+ArrayList<Map> vaultSecrets = [
+    [
+        engineVersion: 1,
+        path: 'kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer', 
+        secretValues: [
+             [envVar: 'Ks8500Token', vaultKey: 'repo-pathwave-token'],
+             [envVar: 'VmtApiKey', vaultKey: 'vmt-jwt-token']
+        ]
+    ]
+]
+// =====================================================================
+// CUSTOMIZATION_TODO
+// =====================================================================
+// groovylint-disable-next-line
+//@Library('KOSi Pipeline Library@v5.2.1') _
+@Library('KOSi Pipeline Library@feature/nessus-scan-timeout') _
+
+// =====================================================================
+// CUSTOMIZATION_TODO
+// =====================================================================
+Map projectConfig =
+[
+    'vmtProjectId': '699',
+    'vmtVersionId': '',
+    'vmtTargetVm': '127.0.0.1',
+    'jobFullName': '',
+    'projectName': 'SSA-X',
+    'scanAgentLabel': 'windows',
+    
+    'logLevel': 'debug',
+    'vmt': [
+        'url': 'https://vmt-app-int-elb.blackduck.usw2.amzn.keysight.com'
+    ]
+]
+
+// =====================================================================
+// KpcBuildAgents Configuration
+// =====================================================================
+List PipelineAgents =
+[
+    [label: 'windows', type: 'vsphere', jenkinsHostLabel: 'windows']
+]
+def PipelineKpcBuildAgents = GetKpcBuildAgentsSingleton()
+
+// =====================================================================
+// Kubernetes KOSi Pipeline Executor Configuration
+// =====================================================================
+KosiLoadKplContainerExtensions()
+InsertKpeKubernetesAgentInfo(projectConfig)
+
+// =====================================================================
+// The Pipeline
+// =====================================================================
+pipeline
+{
+    agent
+    {
+        kubernetes
+        {
+            yaml projectConfig.KpekubernetesConfig.kubernetesLinuxAgent.yaml
+        }
+    }
+
+    // // =====================================================================
+    // // CUSTOMIZATION_TODO
+    // // =====================================================================
+    // triggers
+    // {
+    //     cron 'H H 1,16 * *'
+    // }
+
+    options
+    {
+        disableConcurrentBuilds()
+        disableResume()
+        skipDefaultCheckout true
+        timestamps()
+    }
+
+    // Use environment for Jenkinsfile template to simplify inserting
+    // custom shell/batch scripts
+    // environment
+    // {
+    //     CUSTOMIZION_TODO
+    // }
+
+    stages
+    {
+        stage('Initialize Library Data')
+        {
+            steps
+            {
+                InsertPipelineInitialization(projectConfig)
+            }
+        }
+
+        stage('KPC Reservation')
+        {
+            steps
+            {
+                script
+                {
+                    PipelineKpcBuildAgents.Reserve(projectConfig, PipelineAgents)
+                }
+            }
+        }
+
+        stage('Prepare Build Agent Workspace')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {
+                    List packageConfigs = [
+                        [packageType: 'dotnet']
+                    ]
+                    PipelineStagePrepare(projectConfig, packageConfigs)
+                    // =========================================================
+                    // CUSTOMIZATION_TODO
+                    // =========================================================
+                }
+            }
+        }
+
+        stage('Build software')
+        {
+            environment {
+                OpenTapVersion = '9.23.0'
+            }
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                withVault([configuration: vaultConfiguration, vaultSecrets: vaultSecrets])
+                {
+                    script
+                    {
+                        echo "restore OpenTAP dependencies"              
+                        debugOutput = powershell(script: """
+                            # add package feed
+                            dotnet nuget add source https://api.nuget.org/v3/index.json --name nuget.org
+
+                            # build plugin
+                            dotnet build -c Release
+
+                            # build package
+                            pushd .\\Signal-Source-Analyzer\\bin\\Release
+                            .\\tap package create ..\\..\\package.xml
+                            popd                    
+                            """, returnStdout: true).trim()
+
+                        echo "${debugOutput}"
+                       
+                        version = powershell(script: """
+                            write-output((.\\Signal-Source-Analyzer\\bin\\Release\\tap sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
+                            """, returnStdout: true).trim()
+                        echo "${version}"
+                    }
+
+                }
+            }
+        }
+
+        stage('Create VMT Version')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                withVault([configuration: vaultConfiguration, vaultSecrets: vaultSecrets])
+                {
+                    script
+                    {
+                        versionId = powershell(script: """
+                            # Define the Headers with the Bearer Token
+
+                            \$headers = @{"Authorization" = \$env:VmtApiKey}
+                            \$body = @{
+                                "Version Name" = "${projectConfig.projectName}-${version}";
+                                "Milestone Status" = "PM";
+                                "Operating System" = "Windows 10 from Keysight Labs";
+                                "Product Type" = "SAO";
+                                "LXI Product" = "false"
+                            }
+                            
+                            \$bodyJson = \$body | ConvertTo-Json
+                            \$response = Invoke-RestMethod -Uri "${projectConfig.vmt.url}/api/v2/projects/${projectConfig.vmtProjectId}/versions/" -Method Post -Body \$bodyJson -Headers \$headers -ContentType "application/json" 
+                            \$versionId = \$response.Version.Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)[-1]
+                            write-output(\$versionId)
+                            """, returnStdout: true).trim()
+
+                        projectConfig['vmtVersionId'] = "${versionId}"
+                    }
+                }
+            }            
+        }
+
+        stage('VMT Scan 1')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {   
+                    projectConfig['jobFullName'] = "${projectConfig.projectName}-${version}-base" 
+                    startTap = sh(script: """
+                        export JENKINS_NODE_COOKIE=dontKillMe
+                        nohup .\\\\Signal-Source-Analyzer\\\\bin\\\\Release\\\\tap run --ignore-load-errors -v .\\\\.jenkins\\\\test\\\\pause_8hours.TapPlan > output.log 2>&1 &
+                        echo \$! > pid.txt
+                        echo pid.txt 
+                        """, returnStdout: true).trim()
+                    echo "${startTap}"             
+                    NessusScan(projectConfig)
+                    endTap = sh(script: """
+                        echo "Make sure job is still running..."
+                        ps -a
+                        cat pid.txt
+                        kill -9 \$(cat pid.txt) && rm pid.txt
+                        echo "Killed job"
+                        ps -a
+                        """, returnStdout: true).trim()
+                    echo "${endTap}"
+                }                
+            }
+        }
+
+        stage('VMT Scan 2')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {   
+                    projectConfig['jobFullName'] = "${projectConfig.projectName}-${version}-diffscan" 
+                    powershell """
+                        .\\Signal-Source-Analyzer\\bin\\Release\\tap package install "Signal Source Analyzer" -r .\\Signal-Source-Analyzer\\bin\\Release --version $version
+                        """
+                    startTap2 = sh(script: """
+                        export JENKINS_NODE_COOKIE=dontKillMe
+                        nohup .\\\\Signal-Source-Analyzer\\\\bin\\\\Release\\\\tap run --ignore-load-errors -v .\\\\.jenkins\\\\test\\\\pause_8hours.TapPlan > output.log 2>&1 &
+                        echo \$! > pid.txt
+                        echo pid.txt 
+                        """, returnStdout: true).trim()
+                    echo "${startTap2}"             
+                    NessusScan(projectConfig)
+                    endTap2 = sh(script: """
+                        echo "Make sure job is still running..."
+                        ps -a
+                        cat pid.txt
+                        kill -9 \$(cat pid.txt) && rm pid.txt
+                        echo "Killed job"
+                        ps -a
+                        """, returnStdout: true).trim()
+                    echo "${endTap2}"                        
+                }
+            }
+        }
+    }
+    post
+    {
+        // =====================================================================
+        // CUSTOMIZATION_TODO
+        // =====================================================================
+        always
+        {
+            script
+            {
+                PipelineKpcBuildAgents.Release(projectConfig)
+            }
+        }
+    }
+}
+
+// =====================================================================
+// Other private methods/steps for custom stages
+// =====================================================================
+
+
+
+// =====================================================================
+// Developer Notes
+// =====================================================================

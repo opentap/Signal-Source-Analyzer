@@ -16,6 +16,12 @@
     <OpenTapPackageDefinitionPath>package.xml</OpenTapPackageDefinitionPath>
     <CreateOpenTapPackage>false</CreateOpenTapPackage>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <OpenTapPackageDefinitionPath>package.xml</OpenTapPackageDefinitionPath>
+    <CreateOpenTapPackage>true</CreateOpenTapPackage>
+    <InstallCreatedOpenTapPackage>false</InstallCreatedOpenTapPackage>
+  </PropertyGroup>
+
 
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
     <AdditionalOpenTapPackage Include="Sign" Repository="https://test-automation.pw.keysight.com/api/packages" Version="1.4.0" Token="$(Ks8500Token)" />

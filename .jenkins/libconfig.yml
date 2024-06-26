@@ -1,0 +1,6 @@
+vault:
+  defaultCredentialPath: "kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer"
+artifactory:
+  vaultPathForUserName: kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer/username
+  vaultPathForCredentials: kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer
+  vaultPathForPass: kv/secret/team-pwsm/opentapplugins/signalsourceanalyzer/password
