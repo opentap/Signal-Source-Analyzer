@@ -18,31 +18,43 @@ namespace Signal_Source_Analyzer
     public class GeneralVCOCharacterizationSweep : SSAXBaseStep
     {
         #region Settings
-        [Display("Sweep Type", Group: "Settings", Order: 20.1, Description: "Set and read the sweep type.")]
+        [Display("Sweep Type", Group: "Settings", Order: 20.01, Description: "Set and read the sweep type.")]
         public VCOCharacterization_SweepTypeEnum SweepType { get; set; }
 
-        [Display("VControl Start", Group: "Settings", Order: 20.2, Description: "Sets and returns start DC value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use the same voltage for both start and stop.")]
+        [Display("Type", Group: "Settings", Order: 20.011)]
+        public SweepSSCSTypeEnum IsStartStopCenterSpan { get; set; }
+
+        [EnabledIf("IsStartStopCenterSpan", SweepSSCSTypeEnum.StartStop, HideIfDisabled = true)]
+        [Unit("V", UseEngineeringPrefix: true)]
+        [Display("VControl Start", Group: "Settings", Order: 20.02, Description: "Sets and returns start DC value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use the same voltage for both start and stop.")]
         public double VControlStart { get; set; }
 
-        [Display("VControl Center", Group: "Settings", Order: 20.3, Description: "Sets and returns center DC value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use 0 for span. This value is changed automatically")]
+        [EnabledIf("IsStartStopCenterSpan", SweepSSCSTypeEnum.CenterSpan, HideIfDisabled = true)]
+        [Unit("V", UseEngineeringPrefix: true)]
+        [Display("VControl Center", Group: "Settings", Order: 20.03, Description: "Sets and returns center DC value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use 0 for span. This value is changed automatically")]
         public double VControlCenter { get; set; }
 
-        [Display("VControl Stop", Group: "Settings", Order: 20.4, Description: "Sets and returns stop DC value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use the same voltage for both start and stop.")]
+        [EnabledIf("IsStartStopCenterSpan", SweepSSCSTypeEnum.StartStop, HideIfDisabled = true)]
+        [Unit("V", UseEngineeringPrefix: true)]
+        [Display("VControl Stop", Group: "Settings", Order: 20.04, Description: "Sets and returns stop DC value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use the same voltage for both start and stop.")]
         public double VControlStop { get; set; }
 
-        [Display("VControl Span", Group: "Settings", Order: 20.5, Description: "Sets and returns span value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use 0 for span.")]
+        [EnabledIf("IsStartStopCenterSpan", SweepSSCSTypeEnum.CenterSpan, HideIfDisabled = true)]
+        [Unit("V", UseEngineeringPrefix: true)]
+        [Display("VControl Span", Group: "Settings", Order: 20.05, Description: "Sets and returns span value for the specified DC source. This function is used to set the voltage even if the VContol or VSupply1/2 parameter is non swept. When the VContol or VSupply1/2 is not swept, use 0 for span.")]
         public double VControlSpan { get; set; }
 
-        [Display("Number of Points", Group: "Settings", Order: 20.6, Description: "Sets the number of data points for the measurement.")]
+        [Display("Number of Points", Group: "Settings", Order: 20.06, Description: "Sets the number of data points for the measurement.")]
         public int NumberofPoints { get; set; }
 
-        [Display("Dwell Time", Group: "Settings", Order: 20.7, Description: "Sets the dwell time between each sweep point. \nDwell time is ONLY available with SENSe:SWEep:GENeration set to STEPped; It is Not available in ANALOG.\nSending dwell = 0 is the same as setting SENS:SWE:DWEL:AUTO ON. Sending a dwell time > 0 sets SENS:SWE:DWEL:AUTO OFF.")]
+        [Display("Dwell Time", Group: "Settings", Order: 20.07, Description: "Sets the dwell time between each sweep point. \nDwell time is ONLY available with SENSe:SWEep:GENeration set to STEPped; It is Not available in ANALOG.\nSending dwell = 0 is the same as setting SENS:SWE:DWEL:AUTO ON. Sending a dwell time > 0 sets SENS:SWE:DWEL:AUTO OFF.")]
+        [Unit("Sec", UseEngineeringPrefix: true)]
         public double DwellTime { get; set; }
 
-        [Display("Frequency Band", Group: "Settings", Order: 20.8, Description: "Set and read the frequency band.")]
+        [Display("Frequency Band", Group: "Settings", Order: 20.08, Description: "Set and read the frequency band.")]
         public VCOCharacterization_FrequencyBandEnum FrequencyBand { get; set; }
 
-        [Display("Initial Frequency", Group: "Settings", Order: 20.9, Description: "Set and read the initial frequency for the frequency band Max Freq > 8 GHz.")]
+        [Display("Initial Frequency", Group: "Settings", Order: 20.09, Description: "Set and read the initial frequency for the frequency band Max Freq > 8 GHz.")]
         [Unit("Hz", UseEngineeringPrefix: true, StringFormat: "0.000000000")]
         public double InitialFrequency { get; set; }
 
@@ -51,20 +63,23 @@ namespace Signal_Source_Analyzer
 
 
 
+
+
         #endregion
 
         public GeneralVCOCharacterizationSweep()
         {
             SweepType = VCOCharacterization_SweepTypeEnum.VControl;
-            VControlStart = 5;
-            VControlStop = 5;
-            VControlStop = 0;
-            VControlSpan = 5;
+            IsStartStopCenterSpan = SweepSSCSTypeEnum.StartStop;
+            VControlStart = 0.5;
+            VControlStop = 1;
+            VControlCenter = 0.75;
+            VControlSpan = 0.5;
             NumberofPoints = 201;
             DwellTime = 0;
             FrequencyBand = VCOCharacterization_FrequencyBandEnum.R8G;
             InitialFrequency = 8000000000;
-            FreqResolution = VCOCharacterization_FreqResolutionEnum.R10;
+            FreqResolution = VCOCharacterization_FreqResolutionEnum.R64K;
 
 
         }
@@ -72,10 +87,16 @@ namespace Signal_Source_Analyzer
         public override void Run()
         {
             SSAX.SetVCOCharacterization_SweepType(SweepType);
-            SSAX.SetVCOCharacterization_VControlStart(Channel, SweepType, VControlStart);
-            SSAX.SetVCOCharacterization_VControlCenter(Channel, SweepType, VControlCenter);
-            SSAX.SetVCOCharacterization_VControlStop(Channel, SweepType, VControlStop);
-            SSAX.SetVCOCharacterization_VControlSpan(Channel, SweepType, VControlSpan);
+            if (IsStartStopCenterSpan == SweepSSCSTypeEnum.StartStop)
+            {
+                SSAX.SetVCOCharacterization_VControlStart(Channel, SweepType, VControlStart);
+                SSAX.SetVCOCharacterization_VControlStop(Channel, SweepType, VControlStop);
+            }
+            else
+            {
+                SSAX.SetVCOCharacterization_VControlCenter(Channel, SweepType, VControlCenter);
+                SSAX.SetVCOCharacterization_VControlSpan(Channel, SweepType, VControlSpan);
+            }
             SSAX.SetVCOCharacterization_NumberofPoints(Channel, NumberofPoints);
             SSAX.SetVCOCharacterization_DwellTime(Channel, DwellTime);
             SSAX.SetVCOCharacterization_FrequencyBand(FrequencyBand);
