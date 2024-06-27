@@ -15,6 +15,23 @@ using System.Threading.Tasks;
 
 namespace Signal_Source_Analyzer
 {
+    public class PhaseNoiseSegmentDefinition
+    {
+        [Display("Start Offset", Order: 1)]
+        [Unit("Hz", UseEngineeringPrefix: true)]
+        public double StartOffset { get; set; }
+        [Display("Stop Offset", Order: 2)]
+        [Unit("Hz", UseEngineeringPrefix: true)]
+        public double StopOffset { get; set; }
+        [Display("RBW", Order: 3)]
+        [Unit("Hz", UseEngineeringPrefix: true)]
+        public double RBW { get; set; }
+        [Display("XCORR", Order: 4)]
+        public int Xcorr { get; set; }
+        [Display("Total XCORR", Order: 5)]
+        public int TotalXcorr { get; set; }
+    }
+
     [Display("Sweep", Groups: new[] { "Signal Source Analyzer", "General", "Phase Noise" }, Description: "Insert a description here")]
     public class GeneralPhaseNoiseSweep : SSAXBaseStep
     {
@@ -30,12 +47,12 @@ namespace Signal_Source_Analyzer
 
         [EnabledIf("SweepType", PhaseNoise_SweepTypeEnum.LOGarithmic, HideIfDisabled = true)]
         [Display("Start Offset", Group: "Measurement", Order: 30.1, Description: "Sets the start frequency of the analyzer")]
-        [Unit("kHz", UseEngineeringPrefix: true, StringFormat: "0")]
+        [Unit("Hz", UseEngineeringPrefix: true, StringFormat: "0")]
         public double StartOffset { get; set; }
 
         [EnabledIf("SweepType", PhaseNoise_SweepTypeEnum.LOGarithmic, HideIfDisabled = true)]
         [Display("Stop Offset", Group: "Measurement", Order: 30.2, Description: "Sets the stop frequency of the analyzer")]
-        [Unit("MHz", UseEngineeringPrefix: true, StringFormat: "0")]
+        [Unit("Hz", UseEngineeringPrefix: true, StringFormat: "0")]
         public double StopOffset { get; set; }
 
         [EnabledIf("SweepType", PhaseNoise_SweepTypeEnum.LOGarithmic, HideIfDisabled = true)]
@@ -50,11 +67,11 @@ namespace Signal_Source_Analyzer
         public PhaseNoise_FastXCORRModeEnum FastXCORRMode { get; set; }
 
         [EnabledIf("EnableSearch", true, HideIfDisabled = true)]
-        [Display("Carrier Frequency", Group: "Source", Order: 40.1, Description: "Sets and returns the carrier frequency")]
-        [Unit("GHz", UseEngineeringPrefix: true, StringFormat: "0.000000000")]
+        [Display("Carrier Frequency", Group: "Source", Order: 40.2, Description: "Sets and returns the carrier frequency")]
+        [Unit("Hz", UseEngineeringPrefix: true, StringFormat: "0.000000000")]
         public double CarrierFrequency { get; set; }
 
-        [Display("Enable Search", Group: "Source", Order: 40.2, Description: "Enables and disables a broadband carrier search within the range specified using the SENSe:PN:ADJust:CONFigure:FREQuency:LIMit:LOW and SENSe:PN:ADJust:CONFigure:FREQuency:LIMit:HIGH commands.")]
+        [Display("Enable Search", Group: "Source", Order: 40.1, Description: "Enables and disables a broadband carrier search within the range specified using the SENSe:PN:ADJust:CONFigure:FREQuency:LIMit:LOW and SENSe:PN:ADJust:CONFigure:FREQuency:LIMit:HIGH commands.")]
         public bool EnableSearch { get; set; }
 
         [Display("Enable Pulse", Group: "Source", Order: 40.3, Description: "Sets and returns the state of pulse modulation")]
@@ -64,6 +81,11 @@ namespace Signal_Source_Analyzer
         [Display("Pulse Period", Group: "Source", Order: 40.4, Description: "Sets and returns the period of pulse modulation")]
         [Unit("Sec", UseEngineeringPrefix: true, StringFormat: "0.0000")]
         public double PulsePeriod { get; set; }
+
+        [EnabledIf("SweepType", PhaseNoise_SweepTypeEnum.SEGMent, HideIfDisabled = true)]
+        [Display("Segment Setup", Group: "Measurement", Order: 30.1, Description: "Segment Sweep Setup")]
+        public List<PhaseNoiseSegmentDefinition> SegmentSweepSetup { get; set; }
+
         #endregion
 
 
@@ -73,16 +95,27 @@ namespace Signal_Source_Analyzer
             SweepType = PhaseNoise_SweepTypeEnum.LOGarithmic;
             XCORRGainIndicator = false;
 
-            StartOffset = 1;
-            StopOffset = 10;
+            StartOffset = 1e3;
+            StopOffset = 10e6;
             RBWRatio = 10;
             XCORRFactor = 1;
             FastXCORRMode = PhaseNoise_FastXCORRModeEnum.NORMal;
 
-            CarrierFrequency = 1;
+            CarrierFrequency = 1e9;
             EnableSearch = true;
             EnablePulse = false;
             PulsePeriod = 0.0001;
+
+            SegmentSweepSetup = new List<PhaseNoiseSegmentDefinition>();
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 1e3, StopOffset = 3e3, RBW = 300, Xcorr = 1, TotalXcorr = 1 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 3e3, StopOffset = 10e3, RBW = 300, Xcorr = 1, TotalXcorr = 1 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 10e3, StopOffset = 30e3, RBW = 1e3, Xcorr = 13, TotalXcorr = 13 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 30e3, StopOffset = 100e3, RBW = 3e3, Xcorr = 29, TotalXcorr = 29 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 100e3, StopOffset = 300e3, RBW = 10e3, Xcorr = 125, TotalXcorr = 125 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 300e3, StopOffset = 1e6, RBW = 30e3, Xcorr = 509, TotalXcorr = 509 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 1e6, StopOffset = 3e6, RBW = 100e3, Xcorr = 509, TotalXcorr = 509 });
+            SegmentSweepSetup.Add(new PhaseNoiseSegmentDefinition { StartOffset = 3e6, StopOffset = 10e6, RBW = 300e3, Xcorr = 509, TotalXcorr = 509 });
+
         }
 
         public override void Run()
@@ -93,20 +126,71 @@ namespace Signal_Source_Analyzer
             SSAX.SetPhaseNoise_SweepType(Channel, SweepType);
             SSAX.SetPhaseNoise_XCORRGainIndicator(Channel, XCORRGainIndicator);
 
-            SSAX.SetPhaseNoise_StartOffset(Channel, StartOffset);
-            SSAX.SetPhaseNoise_StopOffset(Channel, StopOffset);
-            SSAX.SetPhaseNoise_RBWRatio(Channel, RBWRatio);
-            SSAX.SetPhaseNoise_XCORRFactor(Channel, XCORRFactor);
-            SSAX.SetPhaseNoise_FastXCORRMode(Channel, FastXCORRMode);
-            //SSAX.SetPhaseNoise_SegmentBandwidth(Channel,Segment,SegmentBandwidth);
-            //SSAX.SetPhaseNoise_SegmentCorrelation(Channel,Segment,SegmentCorrelation);
+            if (SweepType == PhaseNoise_SweepTypeEnum.LOGarithmic)
+            {
+                SSAX.SetPhaseNoise_StartOffset(Channel, StartOffset);
+                SSAX.SetPhaseNoise_StopOffset(Channel, StopOffset);
+                SSAX.SetPhaseNoise_RBWRatio(Channel, RBWRatio);
+                SSAX.SetPhaseNoise_XCORRFactor(Channel, XCORRFactor);
+                SSAX.SetPhaseNoise_FastXCORRMode(Channel, FastXCORRMode);
+            }
+            else
+            {
+                // First set START and STOP frequencies
+                SSAX.SetPhaseNoise_StartOffset(Channel, SegmentSweepSetup[0].StartOffset);
+                SSAX.SetPhaseNoise_StopOffset(Channel, SegmentSweepSetup[SegmentSweepSetup.Count-1].StopOffset);
+
+                // Get the number of segments
+                int SegmentCount = SegmentSweepSetup.Count;
+
+                for (int i = 1; i <= SegmentCount; i++)
+                {
+                    // Freq Start and Stop can't be set, these are read only
+                    double segmentFreqStart = SSAX.GetPhaseNoise_SegmentFreqStart(Channel, i);
+                    double segmentFreqStop = SSAX.GetPhaseNoise_SegmentFreqStop(Channel, i);
+                    // Validate Start and Stop with the values on the list
+                    if (segmentFreqStart != SegmentSweepSetup[i - 1].StartOffset)
+                    {
+                        Log.Warning($"Segment {i} Start Offset {SegmentSweepSetup[i - 1].StartOffset} does not match expected frequency of {segmentFreqStart}");
+                    }
+                    if (segmentFreqStop != SegmentSweepSetup[i - 1].StopOffset)
+                    {
+                        Log.Warning($"Segment {i} Stop Offset {SegmentSweepSetup[i - 1].StopOffset} does not match expected frequency of {segmentFreqStop}");
+                    }
+
+                    SSAX.SetPhaseNoise_SegmentBandwidth(Channel, i, SegmentSweepSetup[i - 1].RBW);
+                    SSAX.SetPhaseNoise_SegmentCorrelation(Channel, i, SegmentSweepSetup[i - 1].Xcorr);
+
+                    //Log.Info($"{segmentFreqStart}\t{segmentFreqStop}\t{segmentRBW}\t{segmentXCorr}");
+                }
+            }
+
+            ViewSegmentTable();
 
             SSAX.SetPhaseNoise_CarrierFrequency(Channel, CarrierFrequency);
             SSAX.SetPhaseNoise_EnableSearch(Channel, EnableSearch);
             SSAX.SetPhaseNoise_EnablePulse(Channel, EnablePulse);
             SSAX.SetPhaseNoise_PulsePeriod(Channel, PulsePeriod);
 
+
+
             UpgradeVerdict(Verdict.Pass);
+        }
+
+        public void ViewSegmentTable()
+        {
+            int SegmentCount = SSAX.GetPhaseNoise_SegmentCount(Channel, 1);
+            Log.Info("Segment Count: " + SegmentCount);
+            Log.Info($"Start Offset\tStop Offset\tRBW\tXCORR");
+            for (int i = 1; i <= SegmentCount; i++)
+            {
+                double segmentFreqStart = SSAX.GetPhaseNoise_SegmentFreqStart(Channel, i);
+                double segmentFreqStop = SSAX.GetPhaseNoise_SegmentFreqStop(Channel, i);
+                double segmentRBW = SSAX.GetPhaseNoise_SegmentBandwidth(Channel, i);
+                int segmentXCorr = SSAX.GetPhaseNoise_SegmentCorrelation(Channel, i);
+
+                Log.Info($"{segmentFreqStart}\t{segmentFreqStop}\t{segmentRBW}\t{segmentXCorr}");
+            }
         }
     }
 }
