@@ -4,7 +4,6 @@
 //              the sample application files (and/or any modified version) in any way
 //              you find useful, provided that you agree that Keysight Technologies has no
 //              warranty, obligations or liability for any sample application files.
-using Microsoft.SqlServer.Server;
 using OpenTap;
 using OpenTap.Plugins.PNAX;
 using System;

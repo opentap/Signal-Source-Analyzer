@@ -1,5 +1,4 @@
-﻿using Microsoft.SqlServer.Server;
-using OpenTap;
+﻿using OpenTap;
 using OpenTap.Plugins.PNAX;
 using System;
 using System.Collections.Generic;
