@@ -24,7 +24,9 @@ namespace Signal_Source_Analyzer
 
             // Traces
             GeneralPhaseNoiseNewTrace PhaseNoiseNewTrace = new GeneralPhaseNoiseNewTrace { IsControlledByParent = true, Channel = this.Channel };
+            GeneralPhaseNoiseSweep PhaseNoiseSweep = new GeneralPhaseNoiseSweep { IsControlledByParent = true, Channel = this.Channel };
 
+            this.ChildTestSteps.Add(PhaseNoiseSweep);
             this.ChildTestSteps.Add(PhaseNoiseNewTrace);
         }
 
