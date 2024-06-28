@@ -103,6 +103,7 @@ namespace Signal_Source_Analyzer
             SSAX.SetVCOCharacterization_InitialFrequency(InitialFrequency);
             SSAX.SetVCOCharacterization_FreqResolution(FreqResolution);
 
+            UpgradeVerdict(Verdict.Pass);
 
         }
     }

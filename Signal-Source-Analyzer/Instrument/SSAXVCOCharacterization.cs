@@ -74,49 +74,49 @@ namespace Signal_Source_Analyzer
         public void SetVCOCharacterization_VControlStart(int Channel, VCOCharacterization_SweepTypeEnum SweepType, double value)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            ScpiCommand($"SOURce{Channel}:DC:STARt {SweepTypeSCPI},{value}");
+            ScpiCommand($"SOURce{Channel}:DC:STARt \"{SweepTypeSCPI}\",{value}");
         }
 
         public double GetVCOCharacterization_VControlStart(int Channel, VCOCharacterization_SweepTypeEnum SweepType)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            return ScpiQuery<double>($"SOURce{Channel}:DC:START? {SweepTypeSCPI}");
+            return ScpiQuery<double>($"SOURce{Channel}:DC:START? \"{SweepTypeSCPI}\"");
         }
 
         public void SetVCOCharacterization_VControlCenter(int Channel, VCOCharacterization_SweepTypeEnum SweepType, double value)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            ScpiCommand($"SOURce{Channel}:DC:CENTer {SweepTypeSCPI},{value}");
+            ScpiCommand($"SOURce{Channel}:DC:CENTer \"{SweepTypeSCPI}\",{value}");
         }
 
         public double GetVCOCharacterization_VControlCenter(int Channel, VCOCharacterization_SweepTypeEnum SweepType)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            return ScpiQuery<double>($"SOURce{Channel}:DC:CENTer? {SweepTypeSCPI}");
+            return ScpiQuery<double>($"SOURce{Channel}:DC:CENTer? \"{SweepTypeSCPI}\"");
         }
 
         public void SetVCOCharacterization_VControlStop(int Channel, VCOCharacterization_SweepTypeEnum SweepType, double value)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            ScpiCommand($"SOURce{Channel}:DC:STOP {SweepTypeSCPI},{value}");
+            ScpiCommand($"SOURce{Channel}:DC:STOP \"{SweepTypeSCPI}\",{value}");
         }
 
         public double GetVCOCharacterization_VControlStop(int Channel, VCOCharacterization_SweepTypeEnum SweepType)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            return ScpiQuery<double>($"SOURce{Channel}:DC:STOP? {SweepTypeSCPI}");
+            return ScpiQuery<double>($"SOURce{Channel}:DC:STOP? \"{SweepTypeSCPI}\"");
         }
 
         public void SetVCOCharacterization_VControlSpan(int Channel, VCOCharacterization_SweepTypeEnum SweepType, double value)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            ScpiCommand($"SOURce{Channel}:DC:SPAN {SweepTypeSCPI},{value}");
+            ScpiCommand($"SOURce{Channel}:DC:SPAN \"{SweepTypeSCPI}\",{value}");
         }
 
         public double GetVCOCharacterization_VControlSpan(int Channel, VCOCharacterization_SweepTypeEnum SweepType)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            return ScpiQuery<double>($"SOURce{Channel}:DC:SPAN? {SweepTypeSCPI}");
+            return ScpiQuery<double>($"SOURce{Channel}:DC:SPAN? \"{SweepTypeSCPI}\"");
         }
 
         public void SetVCOCharacterization_NumberofPoints(int Channel, int value)
@@ -170,6 +170,69 @@ namespace Signal_Source_Analyzer
         {
             return ScpiQuery<VCOCharacterization_FreqResolutionEnum>($"SENSe:VCO:FREQuency:RESolution?");
         }
+
+
+
+
+        public void SetVCOCharacterization_RFInput(int Channel, SSAXPortsEnum value)
+        {
+            string PortSCPI = Scpi.Format("{0}", value);
+            ScpiCommand($"SENSe{Channel}:VCO:PORT  {PortSCPI}");
+        }
+
+        public void SetVCOCharacterization_RFInput(int Channel, int value)
+        {
+            ScpiCommand($"SENSe{Channel}:VCO:PORT  {value}");
+        }
+
+        public int GetVCOCharacterization_RFInput(int Channel)
+        {
+            return ScpiQuery<int>($"SENSe{Channel}:VCO:PORT?");
+        }
+
+        public void SetVCOCharacterization_MaxInputLevel(double value)
+        {
+            ScpiCommand($"SENSe:VCO:POWer:INPut:LEVel:MAXimum {value}");
+        }
+
+        public double GetVCOCharacterization_MaxInputLevel()
+        {
+            return ScpiQuery<double>($"SENSe:VCO:POWer:INPut:LEVel:MAXimum?");
+        }
+
+        public void SetVCOCharacterization_MaxInputLevelAuto(bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"SENSe:VCO:POWer:INPut:LEVel:AUTO {StateValue}");
+        }
+
+        public bool GetVCOCharacterization_MaxInputLevelAuto()
+        {
+            return ScpiQuery<bool>($"SENSe:VCO:POWer:INPut:LEVel:AUTO?");
+        }
+
+        public void SetVCOCharacterization_EnableAttenuatorSetting(bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"SENSe:VCO:POWer:INPut:ATTenuation:AUTO {StateValue}");
+        }
+
+        public bool GetVCOCharacterization_EnableAttenuatorSetting()
+        {
+            return ScpiQuery<bool>($"SENSe:VCO:POWer:INPut:ATTenuation:AUTO?");
+        }
+
+        public void SetVCOCharacterization_Attenuator(double value)
+        {
+            ScpiCommand($"SENSe:VCO:POWer:INPut:ATTenuation {value}");
+        }
+
+        public double GetVCOCharacterization_Attenuator()
+        {
+            return ScpiQuery<double>($"SENSe:VCO:POWer:INPut:ATTenuation?");
+        }
+
+
 
 
     }
