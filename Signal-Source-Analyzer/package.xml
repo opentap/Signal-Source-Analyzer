@@ -21,4 +21,5 @@ $(GitVersion) - Gets the version from Git in the recommended format Major.Minor.
 			<Sign Certificate="Keysight Technologies, Inc."/>
     	</File>
   	</Files>
+	<Owner>Keysight Technologies, Inc.</Owner>
 </Package>
