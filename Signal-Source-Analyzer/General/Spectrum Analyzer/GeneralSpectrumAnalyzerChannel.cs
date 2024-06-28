@@ -24,7 +24,9 @@ namespace Signal_Source_Analyzer
 
             // Traces
             GeneralSpectrumAnalyzerNewTrace SpectrumAnalyzerNewTrace = new GeneralSpectrumAnalyzerNewTrace { IsControlledByParent = true, Channel = this.Channel };
+            GeneralSpectrumAnalyzerSetup SpectrumAnalyzerSetup = new GeneralSpectrumAnalyzerSetup { IsControlledByParent = true, Channel = this.Channel };
 
+            this.ChildTestSteps.Add(SpectrumAnalyzerSetup);
             this.ChildTestSteps.Add(SpectrumAnalyzerNewTrace);
         }
 
