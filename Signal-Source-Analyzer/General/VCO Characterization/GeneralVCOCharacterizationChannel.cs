@@ -24,7 +24,11 @@ namespace Signal_Source_Analyzer
 
             // Traces
             GeneralVCOCharacterizationNewTrace VCOCharacterizationNewTrace = new GeneralVCOCharacterizationNewTrace { IsControlledByParent = true, Channel = this.Channel };
+            GeneralVCOCharacterizationSweep VCOCharacterizationSweep = new GeneralVCOCharacterizationSweep { IsControlledByParent = true, Channel = this.Channel };
+            GeneralVCOCharacterizationRFPath VCOCharacterizationRFPath = new GeneralVCOCharacterizationRFPath { IsControlledByParent = true, Channel = this.Channel };
 
+            this.ChildTestSteps.Add(VCOCharacterizationSweep);
+            this.ChildTestSteps.Add(VCOCharacterizationRFPath);
             this.ChildTestSteps.Add(VCOCharacterizationNewTrace);
         }
 
