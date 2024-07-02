@@ -53,20 +53,7 @@ namespace Signal_Source_Analyzer
         RMAX,
     }
 
-    public enum Transient_NarrowReferenceEnum
-    {
-        [Scpi("LEFT")]
-        [Display("Left")]
-        LEFT,
-        [Scpi("CENTer")]
-        [Display("Center")]
-        CENTer,
-        [Scpi("RIGHt")]
-        [Display("Right")]
-        RIGHt,
-    }
-
-    public enum Transient_WideReferenceEnum
+    public enum Transient_ReferenceEnum
     {
         [Scpi("LEFT")]
         [Display("Left")]
@@ -193,15 +180,15 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<double>($"SENSe:TR:WIDE:TIME:OFFSet?");
         }
 
-        public void SetTransient_WideReference(int Channel, Transient_WideReferenceEnum WideReference)
+        public void SetTransient_WideReference(int Channel, Transient_ReferenceEnum WideReference)
         {
             string WideReferenceSCPI = Scpi.Format("{0}", WideReference);
             ScpiCommand($"SENSe{Channel}:TR:WIDE:TIME:REFerence  {WideReferenceSCPI}");
         }
 
-        public Transient_WideReferenceEnum GetTransient_WideReference(int Channel)
+        public Transient_ReferenceEnum GetTransient_WideReference(int Channel)
         {
-            return ScpiQuery<Transient_WideReferenceEnum>($"SENSe:TR:WIDE:TIME:REFerence?");
+            return ScpiQuery<Transient_ReferenceEnum>($"SENSe:TR:WIDE:TIME:REFerence?");
         }
 
         public void SetTransient_WideVBW(int Channel, double value)
@@ -266,15 +253,15 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<double>($"SENSe:TR:NARRow{band}:TIME:OFFSet?");
         }
 
-        public void SetTransient_NarrowReference(int Channel, int band, Transient_NarrowReferenceEnum NarrowReference)
+        public void SetTransient_NarrowReference(int Channel, int band, Transient_ReferenceEnum NarrowReference)
         {
             string NarrowReferenceSCPI = Scpi.Format("{0}", NarrowReference);
             ScpiCommand($"SENSe{Channel}:TR:NARRow{band}:TIME:REFerence  {NarrowReferenceSCPI}");
         }
 
-        public Transient_NarrowReferenceEnum GetTransient_NarrowReference(int Channel, int band)
+        public Transient_ReferenceEnum GetTransient_NarrowReference(int Channel, int band)
         {
-            return ScpiQuery<Transient_NarrowReferenceEnum>($"SENSe:TR:NARRow{band}:TIME:REFerence?");
+            return ScpiQuery<Transient_ReferenceEnum>($"SENSe:TR:NARRow{band}:TIME:REFerence?");
         }
 
         public void SetTransient_NarrowVBW(int Channel, int band, double value)
