@@ -18,8 +18,34 @@ namespace Signal_Source_Analyzer
         public bool IsPropertyReadOnly { get; set; } = true;
 
 
+        private Transient_SweepTypeEnum _SweepType;
         [Display("Sweep Type", Group: "Settings", Order: 20.01, Description: "Sets and read the transition mode, Wide-Narrow or Narrow-Narrow.")]
-        public Transient_SweepTypeEnum SweepType { get; set; }
+        public Transient_SweepTypeEnum SweepType
+        {
+            get
+            {
+                return _SweepType;
+            }
+            set
+            {
+                _SweepType = value;
+                // If this step has a Transient Channel Parent then update its Sweep Type
+                try
+                {
+                    var a = GetParent<GeneralTransientChannel>();
+                    // only if there is a parent of type GeneralTransientChannel
+                    if (a != null)
+                    {
+                        a.SweepType = _SweepType;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Nothing to worry about!
+                    //Log.Debug("can't find parent yet! ex: " + ex.Message);
+                }
+            }
+        }
 
         private bool _TimeCoupling;
         [Display("Time Coupling", Group: "Settings", Order: 20.02, Description: "Enable and disable the time coupling for two measurements (Wide-Narrow or Narrow1-Narrow2")]

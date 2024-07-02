@@ -110,7 +110,7 @@ namespace Signal_Source_Analyzer
 
         public Transient_SweepTypeEnum GetTransient_SweepType(int Channel)
         {
-            return ScpiQuery<Transient_SweepTypeEnum>($"SENSe:TR:STYpe?");
+            return ScpiQuery<Transient_SweepTypeEnum>($"SENSe{Channel}:TR:STYpe?");
         }
 
         public void SetTransient_TimeCoupling(int Channel, bool State)
@@ -121,7 +121,7 @@ namespace Signal_Source_Analyzer
 
         public bool GetTransient_TimeCoupling(int Channel)
         {
-            return ScpiQuery<bool>($"SENSe:TR:TIME:COUPling:STATe?");
+            return ScpiQuery<bool>($"SENSe{Channel}:TR:TIME:COUPling:STATe?");
         }
 
         public void SetTransient_NumberOfPoints(int Channel, int value)
@@ -142,7 +142,7 @@ namespace Signal_Source_Analyzer
 
         public Transient_FrequencyRangeEnum GetTransient_FrequencyRange(int Channel)
         {
-            return ScpiQuery<Transient_FrequencyRangeEnum>($"SENSe:TR:WIDE:FREQuency:RANGe?");
+            return ScpiQuery<Transient_FrequencyRangeEnum>($"SENSe{Channel}:TR:WIDE:FREQuency:RANGe?");
         }
 
         public void SetTransient_MaxFrequency(int Channel, double value)
@@ -152,12 +152,12 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_MaxFrequency(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:TR:WIDE:FREQuency:MAXimum?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:WIDE:FREQuency:MAXimum?");
         }
 
         public double GetTransient_MinFrequency(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:TR:WIDE:FREQuency:MINimum?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:WIDE:FREQuency:MINimum?");
         }
 
         public void SetTransient_WideTimeSpan(int Channel, double value)
@@ -167,7 +167,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_WideTimeSpan(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:TR:WIDE:TIME:SPAN?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:WIDE:TIME:SPAN?");
         }
 
         public void SetTransient_WideTimeOffset(int Channel, double value)
@@ -177,7 +177,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_WideTimeOffset(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:TR:WIDE:TIME:OFFSet?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:WIDE:TIME:OFFSet?");
         }
 
         public void SetTransient_WideReference(int Channel, Transient_ReferenceEnum WideReference)
@@ -188,7 +188,7 @@ namespace Signal_Source_Analyzer
 
         public Transient_ReferenceEnum GetTransient_WideReference(int Channel)
         {
-            return ScpiQuery<Transient_ReferenceEnum>($"SENSe:TR:WIDE:TIME:REFerence?");
+            return ScpiQuery<Transient_ReferenceEnum>($"SENSe{Channel}:TR:WIDE:TIME:REFerence?");
         }
 
         public void SetTransient_WideVBW(int Channel, double value)
@@ -198,7 +198,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_WideVBW(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:TR:WIDE:BANDwidth:VIDeo?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:WIDE:BANDwidth:VIDeo?");
         }
 
         public void SetTransient_WideVBWauto(int Channel, bool State)
@@ -209,7 +209,7 @@ namespace Signal_Source_Analyzer
 
         public bool GetTransient_WideVBWauto(int Channel)
         {
-            return ScpiQuery<bool>($"SENSe:TR:WIDE:BANDwidth:VIDeo:AUTO?");
+            return ScpiQuery<bool>($"SENSe{Channel}:TR:WIDE:BANDwidth:VIDeo:AUTO?");
         }
 
         public void SetTransient_CenterFrequency(int Channel, int band, double value)
@@ -219,7 +219,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_CenterFrequency(int Channel, int band)
         {
-            return ScpiQuery<double>($"SENSe:TR:NARRow{band}:FREQuency:CENTer?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:NARRow{band}:FREQuency:CENTer?");
         }
 
         public void SetTransient_FrequencySpan(int Channel, int band, Transient_FrequencySpanEnum FrequencySpan)
@@ -230,7 +230,7 @@ namespace Signal_Source_Analyzer
 
         public Transient_FrequencySpanEnum GetTransient_FrequencySpan(int Channel, int band)
         {
-            return ScpiQuery<Transient_FrequencySpanEnum>($"SENSe:TR:NARRow{band}:FREQuency:RANGe?");
+            return ScpiQuery<Transient_FrequencySpanEnum>($"SENSe{Channel}:TR:NARRow{band}:FREQuency:RANGe?");
         }
 
         public void SetTransient_NarrowTimeSpan(int Channel, int band, double value)
@@ -240,7 +240,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_NarrowTimeSpan(int Channel, int band)
         {
-            return ScpiQuery<double>($"SENSe:TR:NARRow{band}:TIME:SPAN?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:NARRow{band}:TIME:SPAN?");
         }
 
         public void SetTransient_NarrowTimeOffset(int Channel, int band, double value)
@@ -250,7 +250,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_NarrowTimeOffset(int Channel, int band)
         {
-            return ScpiQuery<double>($"SENSe:TR:NARRow{band}:TIME:OFFSet?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:NARRow{band}:TIME:OFFSet?");
         }
 
         public void SetTransient_NarrowReference(int Channel, int band, Transient_ReferenceEnum NarrowReference)
@@ -261,7 +261,7 @@ namespace Signal_Source_Analyzer
 
         public Transient_ReferenceEnum GetTransient_NarrowReference(int Channel, int band)
         {
-            return ScpiQuery<Transient_ReferenceEnum>($"SENSe:TR:NARRow{band}:TIME:REFerence?");
+            return ScpiQuery<Transient_ReferenceEnum>($"SENSe{Channel}:TR:NARRow{band}:TIME:REFerence?");
         }
 
         public void SetTransient_NarrowVBW(int Channel, int band, double value)
@@ -271,7 +271,7 @@ namespace Signal_Source_Analyzer
 
         public double GetTransient_NarrowVBW(int Channel, int band)
         {
-            return ScpiQuery<double>($"SENSe:TR:NARRow{band}:BANDwidth:VIDeo:VALUe?");
+            return ScpiQuery<double>($"SENSe{Channel}:TR:NARRow{band}:BANDwidth:VIDeo:VALUe?");
         }
 
         public void SetTransient_NarrowVBWauto(int Channel, int band, bool State)
@@ -282,7 +282,7 @@ namespace Signal_Source_Analyzer
 
         public bool GetTransient_NarrowVBWauto(int Channel, int band)
         {
-            return ScpiQuery<bool>($"SENSe:TR:NARRow{band}:BANDwidth:VIDeo:AUTO?");
+            return ScpiQuery<bool>($"SENSe{Channel}:TR:NARRow{band}:BANDwidth:VIDeo:AUTO?");
         }
 
 
