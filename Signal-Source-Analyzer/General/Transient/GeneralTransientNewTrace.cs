@@ -64,6 +64,7 @@ namespace Signal_Source_Analyzer
                 if (_SweepType == Transient_SweepTypeEnum.WN)
                 {
                     TransientTraceList = new List<string>() { "WB_Freq", "NB1_Freq", "NB1_Phase", "NB1_Power" };
+                    Meas = "WB_Freq";
                 }
 
                 // WB-NB to NB-NB
@@ -71,6 +72,7 @@ namespace Signal_Source_Analyzer
                 if (_SweepType == Transient_SweepTypeEnum.NN)
                 {
                     TransientTraceList = new List<string>() { "NB1_Freq", "NB1_Phase", "NB1_Power", "NB2_Freq", "NB2_Phase", "NB2_Power" };
+                    Meas = "NB1_Freq";
                 }
 
                 // Now lets update all available traces

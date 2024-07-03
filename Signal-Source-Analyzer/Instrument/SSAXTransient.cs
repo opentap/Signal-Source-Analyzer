@@ -101,13 +101,13 @@ namespace Signal_Source_Analyzer
     public enum Transient_TriggerEnum
     {
         [Scpi("WB")]
-        [Display("WB")]
+        [Display("Wide")]
         WB,
         [Scpi("NB1")]
-        [Display("NB1")]
+        [Display("Narrow1")]
         NB1,
         [Scpi("NB2")]
-        [Display("NB2")]
+        [Display("Narrow2")]
         NB2,
     }
 

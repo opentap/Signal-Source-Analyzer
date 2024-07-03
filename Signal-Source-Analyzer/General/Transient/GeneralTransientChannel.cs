@@ -44,6 +44,10 @@ namespace Signal_Source_Analyzer
                     {
                         (a as GeneralTransientSingleTrace).SweepType = value;
                     }
+                    if (a is GeneralTransientTrigger)
+                    {
+                        (a as GeneralTransientTrigger).SweepType = value;
+                    }
                 }
             }
         }
@@ -56,8 +60,12 @@ namespace Signal_Source_Analyzer
             // Traces
             GeneralTransientNewTrace TransientNewTrace = new GeneralTransientNewTrace { IsControlledByParent = true, Channel = this.Channel };
             GeneralTransientSweep TransientSweep = new GeneralTransientSweep { IsControlledByParent = true, Channel = this.Channel };
+            GeneralTransientRFPath TransientRFPath = new GeneralTransientRFPath { IsControlledByParent = true, Channel = this.Channel };
+            GeneralTransientTrigger TransientTrigger = new GeneralTransientTrigger { IsControlledByParent = true, Channel = this.Channel };
 
             this.ChildTestSteps.Add(TransientSweep);
+            this.ChildTestSteps.Add(TransientRFPath);
+            this.ChildTestSteps.Add(TransientTrigger);
             this.ChildTestSteps.Add(TransientNewTrace);
         }
 
