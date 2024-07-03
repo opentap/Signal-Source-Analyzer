@@ -98,6 +98,39 @@ namespace Signal_Source_Analyzer
     }
 
 
+    public enum Transient_TriggerEnum
+    {
+        [Scpi("WB")]
+        [Display("WB")]
+        WB,
+        [Scpi("NB1")]
+        [Display("NB1")]
+        NB1,
+        [Scpi("NB2")]
+        [Display("NB2")]
+        NB2,
+    }
+
+    public enum Transient_TriggerTypeEnum
+    {
+        [Scpi("FREQuency")]
+        [Display("Frequency")]
+        FREQuency,
+        [Scpi("POWer")]
+        [Display("Power")]
+        POWer,
+    }
+
+    public enum Transient_SlopeEnum
+    {
+        [Scpi("POSitive")]
+        [Display("Positive")]
+        POSitive,
+        [Scpi("NEGative")]
+        [Display("Negative")]
+        NEGative,
+    }
+
 
 
     public partial class SSAX : PNAX
@@ -350,6 +383,155 @@ namespace Signal_Source_Analyzer
         {
             return ScpiQuery<double>($"SENSe{Channel}:TR:POWer:INPut:ATTenuation?");
         }
+
+        #endregion
+
+        #region Trigger
+        public void SetTransient_EnableVideoTrigger(int Channel, bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:ENABle  {StateValue}");
+        }
+
+        public bool GetTransient_EnableVideoTrigger(int Channel)
+        {
+            return ScpiQuery<bool>($"TRIGger:CHANnel{Channel}:TR:VIDeo:ENABle?");
+        }
+
+        public void SetTransient_SelectTrigger(int Channel, Transient_TriggerEnum Trigger)
+        {
+            string TriggerSCPI = Scpi.Format("{0}", Trigger);
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:SOURce  {TriggerSCPI}");
+        }
+
+        public Transient_TriggerEnum GetTransient_SelectTrigger(int Channel)
+        {
+            return ScpiQuery<Transient_TriggerEnum>($"TRIGger:CHANnel{Channel}:TR:VIDeo:SOURce?");
+        }
+
+        public void SetTransient_TriggerType(int Channel, int band, Transient_TriggerTypeEnum TriggerType)
+        {
+            string TriggerTypeSCPI = Scpi.Format("{0}", TriggerType);
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:TYPE {TriggerTypeSCPI}");
+        }
+
+        public Transient_TriggerTypeEnum GetTransient_TriggerType(int Channel, int band)
+        {
+            return ScpiQuery<Transient_TriggerTypeEnum>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:TYPE?");
+        }
+
+        public void SetTransient_TargetNarrowFrequency(int Channel, int band, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:FREQuency:TARGet  {value}");
+        }
+
+        public double GetTransient_TargetNarrowFrequency(int Channel, int band)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:FREQuency:TARGet?");
+        }
+
+        public void SetTransient_TargetNarrowPower(int Channel, int band, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:POWer:TARGet  {value}");
+        }
+
+        public double GetTransient_TargetNarrowPower(int Channel, int band)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:POWer:TARGet?");
+        }
+
+        public void SetTransient_TargetWideFrequency(int Channel, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:FREQuency:TARGet  {value}");
+        }
+
+        public double GetTransient_TargetWideFrequency(int Channel)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:FREQuency:TARGet?");
+        }
+
+        public void SetTransient_HysteresisNarrowFrequency(int Channel, int band, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:FREQuency:HYSTeresis  {value}");
+        }
+
+        public double GetTransient_HysteresisNarrowFrequency(int Channel, int band)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:FREQuency:HYSTeresis?");
+        }
+
+        public void SetTransient_HysteresisNarrowPower(int Channel, int band, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:POWer:HYSTeresis  {value}");
+        }
+
+        public double GetTransient_HysteresisNarrowPower(int Channel, int band)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:POWer:HYSTeresis?");
+        }
+
+        public void SetTransient_HysteresisWideFrequency(int Channel, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:FREQuency:HYSTeresis  {value}");
+        }
+
+        public double GetTransient_HysteresisWideFrequency(int Channel)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:FREQuency:HYSTeresis?");
+        }
+
+        public void SetTransient_EdgeNarrow(int Channel, int band, Transient_SlopeEnum Slope)
+        {
+            string SlopeSCPI = Scpi.Format("{0}", Slope);
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:SLOPe  {SlopeSCPI}");
+        }
+
+        public Transient_SlopeEnum GetTransient_EdgeNarrow(int Channel, int band)
+        {
+            return ScpiQuery<Transient_SlopeEnum>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:SLOPe?");
+        }
+
+        public void SetTransient_EdgeWide(int Channel, Transient_SlopeEnum Slope)
+        {
+            string SlopeSCPI = Scpi.Format("{0}", Slope);
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:SLOPe  {SlopeSCPI}");
+        }
+
+        public Transient_SlopeEnum GetTransient_EdgeWide(int Channel)
+        {
+            return ScpiQuery<Transient_SlopeEnum>($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:SLOPe?");
+        }
+
+        public void SetTransient_MinInputLevel(int Channel, int band, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:THReshold:VALue  {value}");
+        }
+
+        public double GetTransient_MinInputLevel(int Channel, int band)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:THReshold:VALue?");
+        }
+
+        public void SetTransient_HoldoffNarrow(int Channel, int band, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:HOFF:TIME  {value}");
+        }
+
+        public double GetTransient_HoldoffNarrow(int Channel, int band)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:NARRow{band}:HOFF:TIME?");
+        }
+
+        public void SetTransient_HoldoffWide(int Channel, double value)
+        {
+            ScpiCommand($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:HOFF:TIME  {value}");
+        }
+
+        public double GetTransient_HoldoffWide(int Channel)
+        {
+            return ScpiQuery<double>($"TRIGger:CHANnel{Channel}:TR:VIDeo:WIDE:HOFF:TIME?");
+        }
+
 
         #endregion
     }
