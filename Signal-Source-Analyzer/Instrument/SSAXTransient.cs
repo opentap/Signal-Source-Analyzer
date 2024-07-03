@@ -102,6 +102,7 @@ namespace Signal_Source_Analyzer
 
     public partial class SSAX : PNAX
     {
+        #region Sweep
         public void SetTransient_SweepType(int Channel, Transient_SweepTypeEnum SweepType)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
@@ -284,8 +285,72 @@ namespace Signal_Source_Analyzer
         {
             return ScpiQuery<bool>($"SENSe{Channel}:TR:NARRow{band}:BANDwidth:VIDeo:AUTO?");
         }
+        #endregion
 
+        #region RF Path
+        public void SetTransient_RFInputNarrow(int Channel, int band, SSAXPortsEnum value)
+        {
+            string PortSCPI = Scpi.Format("{0}", value);
+            ScpiCommand($"SENSe{Channel}:TR:NARRow{band}:PORT  {PortSCPI}");
+        }
 
+        public void SetTransient_RFInputNarrow(int Channel, int band, int value)
+        {
+            ScpiCommand($"SENSe{Channel}:TR:NARRow{band}:PORT  {value}");
+        }
 
+        public int GetTransient_RFInputNarrow(int Channel, int band)
+        {
+            return ScpiQuery<int>($"SENSe{Channel}:TR:NARRow{band}:PORT?");
+        }
+
+        public void SetTransient_RFInputWide(int Channel, int value)
+        {
+            ScpiCommand($"SENSe{Channel}:TR:WIDE:PORT  {value}");
+        }
+
+        public void SetTransient_RFInputWide(int Channel, SSAXPortsEnum value)
+        {
+            string PortSCPI = Scpi.Format("{0}", value);
+            ScpiCommand($"SENSe{Channel}:TR:WIDE:PORT  {PortSCPI}");
+        }
+
+        public int GetTransient_RFInputWide(int Channel)
+        {
+            return ScpiQuery<int>($"SENSe{Channel}:TR:WIDE:PORT?");
+        }
+
+        public void SetTransient_MaxInputLevel(int Channel, double value)
+        {
+            ScpiCommand($"SENSe{Channel}:TR:POWer:INPut:LEVel:MAXimum  {value}");
+        }
+
+        public double GetTransient_MaxInputLevel(int Channel)
+        {
+            return ScpiQuery<double>($"SENSe{Channel}:TR:POWer:INPut:LEVel:MAXimum?");
+        }
+
+        public void SetTransient_EnableAttenuatorSetting(int Channel, bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"SENSe{Channel}:TR:POWer:INPut:ATTenuation:AUTO   {StateValue}");
+        }
+
+        public bool GetTransient_EnableAttenuatorSetting(int Channel)
+        {
+            return ScpiQuery<bool>($"SENSe{Channel}:TR:POWer:INPut:ATTenuation:AUTO?");
+        }
+
+        public void SetTransient_Attenuator(int Channel, double value)
+        {
+            ScpiCommand($"SENSe{Channel}:TR:POWer:INPut:ATTenuation  {value}");
+        }
+
+        public double GetTransient_Attenuator(int Channel)
+        {
+            return ScpiQuery<double>($"SENSe{Channel}:TR:POWer:INPut:ATTenuation?");
+        }
+
+        #endregion
     }
 }

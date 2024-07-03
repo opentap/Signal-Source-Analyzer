@@ -60,15 +60,15 @@ namespace Signal_Source_Analyzer
 
     public partial class SSAX : PNAX
     {
-        public void SetVCOCharacterization_SweepType(VCOCharacterization_SweepTypeEnum SweepType)
+        public void SetVCOCharacterization_SweepType(int Channel, VCOCharacterization_SweepTypeEnum SweepType)
         {
             string SweepTypeSCPI = Scpi.Format("{0}", SweepType);
-            ScpiCommand($"SENSe:VCO:SWEep:SOURce '{SweepTypeSCPI}'");
+            ScpiCommand($"SENSe{Channel}:VCO:SWEep:SOURce '{SweepTypeSCPI}'");
         }
 
-        public VCOCharacterization_SweepTypeEnum GetVCOCharacterization_SweepType()
+        public VCOCharacterization_SweepTypeEnum GetVCOCharacterization_SweepType(int Channel)
         {
-            return ScpiQuery<VCOCharacterization_SweepTypeEnum>($"SENSe:VCO:SWEep:SOURce?");
+            return ScpiQuery<VCOCharacterization_SweepTypeEnum>($"SENSe{Channel}:VCO:SWEep:SOURce?");
         }
 
         public void SetVCOCharacterization_VControlStart(int Channel, VCOCharacterization_SweepTypeEnum SweepType, double value)
@@ -139,36 +139,36 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<double>($"SENSe{Channel}:SWEep:DWELl?");
         }
 
-        public void SetVCOCharacterization_FrequencyBand(VCOCharacterization_FrequencyBandEnum FrequencyBand)
+        public void SetVCOCharacterization_FrequencyBand(int Channel, VCOCharacterization_FrequencyBandEnum FrequencyBand)
         {
             string FrequencyBandSCPI = Scpi.Format("{0}", FrequencyBand);
-            ScpiCommand($"SENSe:VCO:FREQuency:BAND {FrequencyBandSCPI}");
+            ScpiCommand($"SENSe{Channel}:VCO:FREQuency:BAND {FrequencyBandSCPI}");
         }
 
-        public VCOCharacterization_FrequencyBandEnum GetVCOCharacterization_FrequencyBand()
+        public VCOCharacterization_FrequencyBandEnum GetVCOCharacterization_FrequencyBand(int Channel)
         {
-            return ScpiQuery<VCOCharacterization_FrequencyBandEnum>($"SENSe:VCO:FREQuency:BAND?");
+            return ScpiQuery<VCOCharacterization_FrequencyBandEnum>($"SENSe{Channel}:VCO:FREQuency:BAND?");
         }
 
-        public void SetVCOCharacterization_InitialFrequency(double value)
+        public void SetVCOCharacterization_InitialFrequency(int Channel, double value)
         {
-            ScpiCommand($"SENSe:VCO:FREQuency:INIT {value}");
+            ScpiCommand($"SENSe{Channel}:VCO:FREQuency:INIT {value}");
         }
 
-        public double GetVCOCharacterization_InitialFrequency()
+        public double GetVCOCharacterization_InitialFrequency(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:VCO:FREQuency:INIT?");
+            return ScpiQuery<double>($"SENSe{Channel}:VCO:FREQuency:INIT?");
         }
 
-        public void SetVCOCharacterization_FreqResolution(VCOCharacterization_FreqResolutionEnum FreqResolution)
+        public void SetVCOCharacterization_FreqResolution(int Channel, VCOCharacterization_FreqResolutionEnum FreqResolution)
         {
             string FreqResolutionSCPI = Scpi.Format("{0}", FreqResolution);
-            ScpiCommand($"SENSe:VCO:FREQuency:RESolution {FreqResolutionSCPI}");
+            ScpiCommand($"SENSe{Channel}:VCO:FREQuency:RESolution {FreqResolutionSCPI}");
         }
 
-        public VCOCharacterization_FreqResolutionEnum GetVCOCharacterization_FreqResolution()
+        public VCOCharacterization_FreqResolutionEnum GetVCOCharacterization_FreqResolution(int Channel)
         {
-            return ScpiQuery<VCOCharacterization_FreqResolutionEnum>($"SENSe:VCO:FREQuency:RESolution?");
+            return ScpiQuery<VCOCharacterization_FreqResolutionEnum>($"SENSe{Channel}:VCO:FREQuency:RESolution?");
         }
 
 
@@ -190,46 +190,46 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<int>($"SENSe{Channel}:VCO:PORT?");
         }
 
-        public void SetVCOCharacterization_MaxInputLevel(double value)
+        public void SetVCOCharacterization_MaxInputLevel(int Channel, double value)
         {
-            ScpiCommand($"SENSe:VCO:POWer:INPut:LEVel:MAXimum {value}");
+            ScpiCommand($"SENSe{Channel}:VCO:POWer:INPut:LEVel:MAXimum {value}");
         }
 
-        public double GetVCOCharacterization_MaxInputLevel()
+        public double GetVCOCharacterization_MaxInputLevel(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:VCO:POWer:INPut:LEVel:MAXimum?");
+            return ScpiQuery<double>($"SENSe{Channel}:VCO:POWer:INPut:LEVel:MAXimum?");
         }
 
-        public void SetVCOCharacterization_MaxInputLevelAuto(bool State)
+        public void SetVCOCharacterization_MaxInputLevelAuto(int Channel, bool State)
         {
             string StateValue = State ? "1" : "0";
-            ScpiCommand($"SENSe:VCO:POWer:INPut:LEVel:AUTO {StateValue}");
+            ScpiCommand($"SENSe{Channel}:VCO:POWer:INPut:LEVel:AUTO {StateValue}");
         }
 
-        public bool GetVCOCharacterization_MaxInputLevelAuto()
+        public bool GetVCOCharacterization_MaxInputLevelAuto(int Channel)
         {
-            return ScpiQuery<bool>($"SENSe:VCO:POWer:INPut:LEVel:AUTO?");
+            return ScpiQuery<bool>($"SENSe{Channel}:VCO:POWer:INPut:LEVel:AUTO?");
         }
 
-        public void SetVCOCharacterization_EnableAttenuatorSetting(bool State)
+        public void SetVCOCharacterization_EnableAttenuatorSetting(int Channel, bool State)
         {
             string StateValue = State ? "1" : "0";
-            ScpiCommand($"SENSe:VCO:POWer:INPut:ATTenuation:AUTO {StateValue}");
+            ScpiCommand($"SENSe{Channel}:VCO:POWer:INPut:ATTenuation:AUTO {StateValue}");
         }
 
-        public bool GetVCOCharacterization_EnableAttenuatorSetting()
+        public bool GetVCOCharacterization_EnableAttenuatorSetting(int Channel)
         {
-            return ScpiQuery<bool>($"SENSe:VCO:POWer:INPut:ATTenuation:AUTO?");
+            return ScpiQuery<bool>($"SENSe{Channel}:VCO:POWer:INPut:ATTenuation:AUTO?");
         }
 
-        public void SetVCOCharacterization_Attenuator(double value)
+        public void SetVCOCharacterization_Attenuator(int Channel, double value)
         {
-            ScpiCommand($"SENSe:VCO:POWer:INPut:ATTenuation {value}");
+            ScpiCommand($"SENSe{Channel}:VCO:POWer:INPut:ATTenuation {value}");
         }
 
-        public double GetVCOCharacterization_Attenuator()
+        public double GetVCOCharacterization_Attenuator(int Channel)
         {
-            return ScpiQuery<double>($"SENSe:VCO:POWer:INPut:ATTenuation?");
+            return ScpiQuery<double>($"SENSe{Channel}:VCO:POWer:INPut:ATTenuation?");
         }
 
 

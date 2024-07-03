@@ -64,10 +64,10 @@ namespace Signal_Source_Analyzer
         public override void Run()
         {
             SSAX.SetVCOCharacterization_RFInput(Channel, RFInput);
-            SSAX.SetVCOCharacterization_MaxInputLevel(MaxInputLevel);
-            SSAX.SetVCOCharacterization_MaxInputLevelAuto(MaxInputLevelAuto);
-            SSAX.SetVCOCharacterization_EnableAttenuatorSetting(!EnableAttenuatorSetting);
-            SSAX.SetVCOCharacterization_Attenuator(Attenuator);
+            SSAX.SetVCOCharacterization_MaxInputLevel(Channel, MaxInputLevel);
+            SSAX.SetVCOCharacterization_MaxInputLevelAuto(Channel, MaxInputLevelAuto);
+            SSAX.SetVCOCharacterization_EnableAttenuatorSetting(Channel, !EnableAttenuatorSetting);
+            SSAX.SetVCOCharacterization_Attenuator(Channel, Attenuator);
 
             UpgradeVerdict(Verdict.Pass);
 
