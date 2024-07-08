@@ -72,5 +72,64 @@ namespace Signal_Source_Analyzer
 
             return tnum;
         }
+
+        public void SetTraceFormat(int Channel, int mnum, string meas)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:FORMat {meas}");
+        }
+
+        public void SetTraceFormat(int Channel, int mnum, TransientFreqMeasurementFormatEnum meas)
+        {
+            string FormatSCPI = Scpi.Format("{0}", meas);
+            SetTraceFormat(Channel, mnum, FormatSCPI);
+        }
+
+        public void SetTraceFormat(int Channel, int mnum, PhaseMeasurementFormatEnum meas)
+        {
+            string FormatSCPI = Scpi.Format("{0}", meas);
+            SetTraceFormat(Channel, mnum, FormatSCPI);
+        }
+
+        public void SetTraceFormat(int Channel, int mnum, PowerMeasurementFormatEnum meas)
+        {
+            string FormatSCPI = Scpi.Format("{0}", meas);
+            SetTraceFormat(Channel, mnum, FormatSCPI);
+        }
+
+        public void SetTraceFormat(int Channel, int mnum, VCOFreqMeasurementFormatEnum meas)
+        {
+            string FormatSCPI = Scpi.Format("{0}", meas);
+            SetTraceFormat(Channel, mnum, FormatSCPI);
+        }
+
+        public void SetTraceFormat(int Channel, int mnum, CurrentMeasurementFormatEnum meas)
+        {
+            string FormatSCPI = Scpi.Format("{0}", meas);
+            SetTraceFormat(Channel, mnum, FormatSCPI);
+        }
+
+        public void SetTraceUnits(int Channel, int mnum, string dataFormat, FreqMeasurementFormatUnitsEnum units)
+        {
+            string UnitsSCPI = Scpi.Format("{0}", units);
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:FORMat:UNIT {dataFormat}, {UnitsSCPI}");
+        }
+
+        public void SetTraceUnits(int Channel, int mnum, string dataFormat, PhaseMeasurementFormatUnitsEnum units)
+        {
+            string UnitsSCPI = Scpi.Format("{0}", units);
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:FORMat:UNIT {dataFormat}, {UnitsSCPI}");
+        }
+
+        public void SetTraceUnits(int Channel, int mnum, string dataFormat, PowerLogMeasurementFormatUnitsEnum units)
+        {
+            string UnitsSCPI = Scpi.Format("{0}", units);
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:FORMat:UNIT {dataFormat}, {UnitsSCPI}");
+        }
+
+        public void SetTraceUnits(int Channel, int mnum, string dataFormat, PowerLinMeasurementFormatUnitsEnum units)
+        {
+            string UnitsSCPI = Scpi.Format("{0}", units);
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:FORMat:UNIT {dataFormat}, {UnitsSCPI}");
+        }
     }
 }

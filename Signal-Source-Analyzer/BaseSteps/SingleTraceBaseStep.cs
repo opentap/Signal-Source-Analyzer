@@ -18,7 +18,7 @@ namespace Signal_Source_Analyzer
     {
         #region Settings
         [Browsable(false)]
-        public bool IsFormatEnabled { get; set; } = false;
+        public bool IsFormatEnabled { get; set; } = true;
 
         [Browsable(false)]
         public bool EnableTraceSettings { get; set; } = false;
@@ -116,7 +116,7 @@ namespace Signal_Source_Analyzer
         [Display("Add Trace Format", Groups: new[] { "Trace" }, Order: 30)]
         public virtual void AddTraceFormat()
         {
-            ChildTestSteps.Add(new TraceFormat() { SSAX = SSAX, Channel = Channel });
+            ChildTestSteps.Add(new TraceFormat() { SSAX = SSAX, Channel = Channel, MeasClass = measClass, Trace = Trace });
         }
 
         [Browsable(true)]
