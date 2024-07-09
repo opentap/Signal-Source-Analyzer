@@ -534,5 +534,72 @@ namespace Signal_Source_Analyzer
 
 
         #endregion
+
+        #region Phase Reference
+
+        public void SetTransient_PhaseReferenceFrequencyAuto(int Channel, int mnum, bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:AUTO  {StateValue}");
+        }
+
+        public bool GetTransient_PhaseReferenceFrequencyAuto(int Channel, int mnum)
+        {
+            return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:AUTO?");
+        }
+
+        public void SetTransient_SetFrequencyTo(int Channel, int mnum, double value)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:FREQuency  {value}");
+        }
+
+        public double GetTransient_SetFrequencyTo(int Channel, int mnum)
+        {
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:FREQuency?");
+        }
+
+        public void SetTransient_MeasureFrequencyAt(int Channel, int mnum, double value)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:XPOSition  {value}");
+        }
+
+        public double GetTransient_MeasureFrequencyAt(int Channel, int mnum)
+        {
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:XPOSition?");
+        }
+
+        public void SetTransient_PhaseReferenceFrequencySpan(int Channel, int mnum, double value)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:XSPan  {value}");
+        }
+
+        public double GetTransient_PhaseReferenceFrequencySpan(int Channel, int mnum)
+        {
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PHASe:PREFerence:XSPan?");
+        }
+
+        public void SetTransient_SetPhasetoZeroAt(int Channel, int mnum, double value)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PHASe:XREFerence:XPOSition  {value}");
+        }
+
+        public double GetTransient_SetPhasetoZeroAt(int Channel, int mnum)
+        {
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PHASe:XREFerence:XPOSition?");
+        }
+
+        public void SetTransient_PhaseSpan(int Channel, int mnum, double value)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PHASe:XREFerence:XSPan  {value}");
+        }
+
+        public double GetTransient_PhaseSpan(int Channel, int mnum)
+        {
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PHASe:XREFerence:XSPan?");
+        }
+
+
+
+        #endregion
     }
 }

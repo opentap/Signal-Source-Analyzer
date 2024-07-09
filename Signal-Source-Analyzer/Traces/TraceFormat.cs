@@ -64,6 +64,8 @@ namespace Signal_Source_Analyzer
         [Browsable(false)]
         public TraceFormatTypeEnum TraceFormatType { get; set; }
 
+        [Browsable (false)]
+        public int mnum {  get; set; }
 
 
         [EnabledIf("TraceFormatType", TraceFormatTypeEnum.SpectrumAnalyzer, HideIfDisabled = true)]
@@ -159,6 +161,14 @@ namespace Signal_Source_Analyzer
 
 
         #endregion
+        [Browsable(true)]
+        [EnabledIf("TraceFormatType", TraceFormatTypeEnum.TransientPhase, HideIfDisabled = true)]
+        [Display("Add Phase Reference", Groups: new[] { "Trace" }, Order: 21.01)]
+        public void AddPhaseReference()
+        {
+            ChildTestSteps.Add(new GeneralPhaseReference() { SSAX = SSAX, Channel = Channel, IsControlledByParent = true });
+        }
+
 
         private void UpdateFormatOptions()
         {
@@ -253,7 +263,7 @@ namespace Signal_Source_Analyzer
         public override void Run()
         {
             //Channel = GetParent<GeneralSingleTraceBaseStep>().Channel;
-            int mnum  = GetParent<SingleTraceBaseStep>().mnum;
+            mnum  = GetParent<SingleTraceBaseStep>().mnum;
 
             if (TraceFormatType == TraceFormatTypeEnum.TransientFreq)
             {
@@ -333,6 +343,8 @@ namespace Signal_Source_Analyzer
             {
                 SSAX.SetTraceFormat(Channel, mnum, VcoFormatCurrent);
             }
+
+            RunChildSteps(); //If the step supports child steps.
 
             UpgradeVerdict(Verdict.Pass);
         }
