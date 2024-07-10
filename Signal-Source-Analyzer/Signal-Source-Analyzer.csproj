@@ -8,8 +8,8 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTAP" Version="9.24.0" />
-   	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.3" />
-    <OpenTapPackageReference Include="OpenTAP"/>
+   	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.5" />
+    <OpenTapPackageReference Include="OpenTAP" />
   </ItemGroup>
     
   <PropertyGroup Condition="'$(Configuration)' == 'Debug'">
@@ -18,7 +18,7 @@
   </PropertyGroup>
 
   <ItemGroup Condition="'$(Configuration)' == 'Release'">
-    <AdditionalOpenTapPackage Include="Sign" Repository="https://test-automation.pw.keysight.com/api/packages" Version="1.4.0" Token="$(Ks8500Token)"/>
+    <AdditionalOpenTapPackage Include="Sign" Repository="https://test-automation.pw.keysight.com/api/packages" Version="1.4.0" Token="$(Ks8500Token)" />
   </ItemGroup>
 
   <PropertyGroup Condition="'$(OS)' == 'WINDOWS_NT' AND '$(Configuration)' == 'Debug'">

@@ -86,7 +86,7 @@ namespace Signal_Source_Analyzer
 
         public override void Run()
         {
-            SSAX.SetVCOCharacterization_SweepType(SweepType);
+            SSAX.SetVCOCharacterization_SweepType(Channel, SweepType);
             if (IsStartStopCenterSpan == SweepSSCSTypeEnum.StartStop)
             {
                 SSAX.SetVCOCharacterization_VControlStart(Channel, SweepType, VControlStart);
@@ -99,9 +99,9 @@ namespace Signal_Source_Analyzer
             }
             SSAX.SetVCOCharacterization_NumberofPoints(Channel, NumberofPoints);
             SSAX.SetVCOCharacterization_DwellTime(Channel, DwellTime);
-            SSAX.SetVCOCharacterization_FrequencyBand(FrequencyBand);
-            SSAX.SetVCOCharacterization_InitialFrequency(InitialFrequency);
-            SSAX.SetVCOCharacterization_FreqResolution(FreqResolution);
+            SSAX.SetVCOCharacterization_FrequencyBand(Channel, FrequencyBand);
+            SSAX.SetVCOCharacterization_InitialFrequency(Channel, InitialFrequency);
+            SSAX.SetVCOCharacterization_FreqResolution(Channel, FreqResolution);
 
             UpgradeVerdict(Verdict.Pass);
 

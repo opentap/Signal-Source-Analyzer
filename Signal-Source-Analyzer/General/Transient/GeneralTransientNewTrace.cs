@@ -19,13 +19,110 @@ namespace Signal_Source_Analyzer
     public class GeneralTransientNewTrace : AddNewTraceBaseStep
     {
         #region Settings
+        private List<String> _TransientTraceList;
+        [Browsable(false)]
+        [Display("Transient Trace List", "Traces that can be added as a new Trace on Transient Channel", Group: "Transient Settings", Order: 60, Collapsed: true)]
+        public List<String> TransientTraceList
+        {
+            get { return _TransientTraceList; }
+            set
+            {
+                _TransientTraceList = value;
+                OnPropertyChanged("TransientTraceList");
+            }
+        }
+
+
+        [Browsable(false)]
+        public bool IsPropertyReadOnly { get; set; } = true;
+
+        private Transient_SweepTypeEnum _SweepType;
+        [EnabledIf("IsPropertyReadOnly", false, HideIfDisabled = false)]
+        [Display("Sweep Type", Group: "Settings", Order: 10.01, Description: "Sets and read the transition mode, Wide-Narrow or Narrow-Narrow.")]
+        public Transient_SweepTypeEnum SweepType
+        {
+            get
+            {
+                return _SweepType;
+            }
+            set
+            {
+                _SweepType = value;
+
+                // Now lets assign this value to the GeneralTransientNewTrace
+                foreach (var a in this.ChildTestSteps)
+                {
+                    if (a is GeneralTransientSingleTrace)
+                    {
+                        (a as GeneralTransientSingleTrace).SweepType = value;
+                    }
+                }
+
+                // Update Available traces to choose from
+                // NB-NB to WB-NB
+                //all NB2 renamed to WB
+                if (_SweepType == Transient_SweepTypeEnum.WN)
+                {
+                    TransientTraceList = new List<string>() { "WB_Freq", "NB1_Freq", "NB1_Phase", "NB1_Power" };
+                    Meas = "WB_Freq";
+                }
+
+                // WB-NB to NB-NB
+                // all WB renamed to NB2_Freq
+                if (_SweepType == Transient_SweepTypeEnum.NN)
+                {
+                    TransientTraceList = new List<string>() { "NB1_Freq", "NB1_Phase", "NB1_Power", "NB2_Freq", "NB2_Phase", "NB2_Power" };
+                    Meas = "NB1_Freq";
+                }
+
+                // Now lets update all available traces
+                // NB-NB to WB-NB
+                //all NB2 renamed to WB
+                if (_SweepType == Transient_SweepTypeEnum.WN)
+                {
+                    foreach (var a in this.ChildTestSteps)
+                    {
+                        if (a is GeneralTransientSingleTrace)
+                        {
+                            if ((a as GeneralTransientSingleTrace).Meas.Contains("NB2"))
+                            {
+                                // Rename to WB
+                                (a as GeneralTransientSingleTrace).Meas = "WB_Freq";
+                            }
+                        }
+                    }
+                }
+
+                // WB-NB to NB-NB
+                // all WB renamed to NB2_Freq
+                if (_SweepType == Transient_SweepTypeEnum.NN)
+                {
+                    foreach (var a in this.ChildTestSteps)
+                    {
+                        if (a is GeneralTransientSingleTrace)
+                        {
+                            if ((a as GeneralTransientSingleTrace).Meas.Contains("WB_Freq"))
+                            {
+                                // Rename to WB
+                                (a as GeneralTransientSingleTrace).Meas = "NB2_Freq";
+                            }
+                        }
+                    }
+                }
+
+            }
+        }
+
         [Display("Meas", Groups: new[] { "Trace" }, Order: 11)]
-        public TransientWideNarrowTraceEnum Meas { get; set; }
+        [AvailableValues(nameof(TransientTraceList))]
+        public string Meas { get; set; }
         #endregion
 
         public GeneralTransientNewTrace()
         {
-            Meas = TransientWideNarrowTraceEnum.WB_Freq;
+            TransientTraceList = new List<string>() { "WB_Freq", "NB1_Freq", "NB1_Phase", "NB1_Power" };
+
+            Meas = "WB_Freq";
             ChildTestSteps.Add(new GeneralTransientSingleTrace() { SSAX = this.SSAX, Meas = this.Meas, Channel = this.Channel, IsControlledByParent = true, EnableTraceSettings = true });
         }
 
@@ -40,7 +137,9 @@ namespace Signal_Source_Analyzer
         // Called from Add New Trace Button
         protected override void AddNewTrace()
         {
-            ChildTestSteps.Add(new GeneralTransientSingleTrace() { SSAX = this.SSAX, Meas = this.Meas, Channel = this.Channel, IsControlledByParent = true, EnableTraceSettings = true });
+            GeneralTransientSingleTrace generalTransientSingleTrace = new GeneralTransientSingleTrace() { SSAX = this.SSAX, Meas = this.Meas, Channel = this.Channel, IsControlledByParent = true, EnableTraceSettings = true, SweepType = this.SweepType };
+            generalTransientSingleTrace.UpdateTestStepName();
+            ChildTestSteps.Add(generalTransientSingleTrace);
         }
 
     }
