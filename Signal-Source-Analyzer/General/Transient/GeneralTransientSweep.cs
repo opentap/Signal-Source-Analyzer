@@ -429,6 +429,7 @@ namespace Signal_Source_Analyzer
                 }
             }
 
+            NumberOfPoints = SSAX.GetTransient_NumberOfPoints(Channel);
 
             UpgradeVerdict(Verdict.Pass);
         }

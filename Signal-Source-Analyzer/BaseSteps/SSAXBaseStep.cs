@@ -23,7 +23,7 @@ namespace Signal_Source_Analyzer
         public bool IsControlledByParent { get; set; } = false;
         private SSAX _SSAX;
         [EnabledIf("IsControlledByParent", false, HideIfDisabled = false)]
-        [Display("PNA", Order: 0.1)]
+        [Display("SSA-X", Order: 0.1)]
         public virtual SSAX SSAX
         {
             get { return _SSAX; }
