@@ -13,8 +13,8 @@ namespace Signal_Source_Analyzer
         [Scpi("PNOise")]
         [Display("Phase Noise")]
         PNOise,
-        [Scpi("RESidual")]
-        RESidual,
+        //[Scpi("RESidual")]
+        //RESidual,
         [Scpi("BASeband")]
         [Display("Baseband Noise")]
         BASeband,
