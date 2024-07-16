@@ -53,7 +53,7 @@ namespace Signal_Source_Analyzer
                     // only if there is a parent of type GeneralTransientChannel
                     if (a != null)
                     {
-                        a.SweepType = _NoiseType;
+                        a.NoiseType = _NoiseType;
                     }
                 }
                 catch (Exception ex)
