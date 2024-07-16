@@ -27,6 +27,7 @@ namespace Signal_Source_Analyzer
         {
             Meas = PhaseNoiseTraceEnum.PN;
             ChildTestSteps.Add(new GeneralPhaseNoiseSingleTrace() { SSAX = this.SSAX, Meas = this.Meas, Channel = this.Channel, IsControlledByParent = true, EnableTraceSettings = true });
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
         }
 
         [Browsable(false)]

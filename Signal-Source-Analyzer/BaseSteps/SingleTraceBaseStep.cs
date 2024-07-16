@@ -108,6 +108,8 @@ namespace Signal_Source_Analyzer
             Sheet = 1;
             CustomTraceMeas = false;
             CustomMeas = "Device0_AM1";
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
+
         }
 
         [Browsable(true)]

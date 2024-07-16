@@ -102,4 +102,82 @@ namespace Signal_Source_Analyzer
         PPH,
     }
 
+    public enum PhaseNoise_AnalyzerInputEnum
+    {
+        [Scpi("a1")]
+        [Display("a1")]
+        a1,
+        [Scpi("a2")]
+        [Display("a2")]
+        a2,
+        [Scpi("a3")]
+        [Display("a3")]
+        a3,
+        [Scpi("a4")]
+        [Display("a4")]
+        a4,
+        [Scpi("b1")]
+        [Display("b1")]
+        b1,
+        [Scpi("b2")]
+        [Display("b2")]
+        b2,
+        [Scpi("b3")]
+        [Display("b3")]
+        b3,
+        [Scpi("b4")]
+        [Display("b4")]
+        b4,
+        [Scpi("b2/a1")]
+        [Display("b2/a1")]
+        b2a1,
+        [Scpi("b1/a2")]
+        [Display("b1/a2")]
+        b1a2,
+    }
+
+    public enum PhaseNoise_BasebandInputEnum
+    {
+        [Scpi("ACLF")]
+        [Display("AC(LF)")]
+        ACLF,
+        [Scpi("ACHF")]
+        [Display("AC(HF)")]
+        ACHF,
+    }
+
+    public enum PhaseNoise_RFPathConfigurationEnum
+    {
+        [Scpi("PulseTrigInput")]
+        [Display("PulseTrigInput")]
+        PulseTrigInput,
+        [Scpi("IFGAINb1")]
+        [Display("IFGAINb1")]
+        IFGAINb1,
+    }
+
+    public enum PhaseNoise_TableSortOrderEnum
+    {
+        [Scpi("POWer ")]
+        [Display("Power")]
+        POWer,
+        [Scpi("OFFSet ")]
+        [Display("Offset")]
+        OFFSet,
+    }
+
+    public enum PhaseNoise_IntegratedRangeTypeEnum
+    {
+        [Scpi("OFF")]
+        [Display("Off")]
+        OFF,
+        [Scpi("FULL")]
+        [Display("Full")]
+        FULL,
+        [Scpi("CUSTom")]
+        [Display("Custom")]
+        CUSTom,
+    }
+
+
 }

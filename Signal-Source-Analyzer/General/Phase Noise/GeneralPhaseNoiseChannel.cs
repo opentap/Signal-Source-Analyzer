@@ -18,6 +18,32 @@ namespace Signal_Source_Analyzer
     [Display("Phase Noise Channel", Groups: new[] { "Signal Source Analyzer", "General", "Phase Noise" }, Description: "Insert a description here")]
     public class GeneralPhaseNoiseChannel : SSAXBaseStep
     {
+        [Browsable(false)]
+        public bool IsPropertyReadOnly { get; set; } = true;
+
+        private PhaseNoise_NoiseTypeEnum _NoiseType;
+        [EnabledIf("IsPropertyReadOnly", false, HideIfDisabled = false)]
+        [Display("Sweep Type", Group: "Settings", Order: 20.01, Description: "Sets and read the transition mode, Wide-Narrow or Narrow-Narrow.")]
+        public PhaseNoise_NoiseTypeEnum NoiseType
+        {
+            get
+            {
+                return _NoiseType;
+            }
+            set
+            {
+                _NoiseType = value;
+                // Now lets assign this value to the GeneralTransientNewTrace
+                foreach (var a in this.ChildTestSteps)
+                {
+                    if (a is GeneralPhaseNoiseRFPath)
+                    {
+                        (a as GeneralPhaseNoiseRFPath).NoiseType = value;
+                    }
+                }
+            }
+        }
+
         public GeneralPhaseNoiseChannel()
         {
             IsControlledByParent = false;
@@ -25,9 +51,12 @@ namespace Signal_Source_Analyzer
             // Traces
             GeneralPhaseNoiseNewTrace PhaseNoiseNewTrace = new GeneralPhaseNoiseNewTrace { IsControlledByParent = true, Channel = this.Channel };
             GeneralPhaseNoiseSweep PhaseNoiseSweep = new GeneralPhaseNoiseSweep { IsControlledByParent = true, Channel = this.Channel };
+            GeneralPhaseNoiseRFPath PhaseNoiseRFPath = new GeneralPhaseNoiseRFPath { IsControlledByParent = true, Channel = this.Channel };
 
             this.ChildTestSteps.Add(PhaseNoiseSweep);
+            this.ChildTestSteps.Add(PhaseNoiseRFPath);
             this.ChildTestSteps.Add(PhaseNoiseNewTrace);
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
         }
 
 

@@ -8,7 +8,7 @@
 
   <ItemGroup>
     <PackageReference Include="OpenTAP" Version="9.24.0" />
-   	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.5" />
+   	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.5" />
     <OpenTapPackageReference Include="OpenTAP" />
   </ItemGroup>
     

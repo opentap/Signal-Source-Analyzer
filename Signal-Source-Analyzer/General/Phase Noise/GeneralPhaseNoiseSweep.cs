@@ -35,8 +35,34 @@ namespace Signal_Source_Analyzer
     public class GeneralPhaseNoiseSweep : SSAXBaseStep
     {
         #region Settings
+        private PhaseNoise_NoiseTypeEnum _NoiseType;
         [Display("Noise Type", Group: "Settings", Order: 20.1, Description: "Sets and returns the noise type to phase or residual noise")]
-        public PhaseNoise_NoiseTypeEnum NoiseType { get; set; }
+        public PhaseNoise_NoiseTypeEnum NoiseType
+        {
+            get
+            {
+                return _NoiseType;
+            }
+            set
+            {
+                _NoiseType = value;
+                // If this step has a Transient Channel Parent then update its Sweep Type
+                try
+                {
+                    var a = GetParent<GeneralPhaseNoiseChannel>();
+                    // only if there is a parent of type GeneralTransientChannel
+                    if (a != null)
+                    {
+                        a.SweepType = _NoiseType;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Nothing to worry about!
+                    //Log.Debug("can't find parent yet! ex: " + ex.Message);
+                }
+            }
+        }
 
         [Display("Sweep Type", Group: "Settings", Order: 20.2, Description: "Sets and returns the phase noise sweep type to logarithmic or segment")]
         public PhaseNoise_SweepTypeEnum SweepType { get; set; }
