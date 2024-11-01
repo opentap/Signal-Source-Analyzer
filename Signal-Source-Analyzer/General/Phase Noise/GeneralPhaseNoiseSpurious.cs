@@ -39,14 +39,18 @@ namespace Signal_Source_Analyzer
         [Unit("dBc", UseEngineeringPrefix: true, StringFormat: "0.00")]
         public double MinSpurLevel { get; set; }
 
-        [Display("Threshold Table", Group: "Trace", Order: 30.04, Description: "Sets and returns the spurious threshold table data.")]
-        public string ThresholdTable { get; set; }
-
-        [Display("Omit Displayed Spur", Group: "Trace", Order: 30.05, Description: "Enables and disables spur omission.")]
+        [Display("Omit Displayed Spur", Group: "Trace", Order: 30.04, Description: "Enables and disables spur omission.")]
         public bool OmitDisplayedSpur { get; set; }
 
-        [Display("User Spur Table", Group: "Trace", Order: 30.06, Description: "Sets and returns the User Spur Table data which defines spurs to omit.")]
-        public Array UserSpurTable { get; set; }
+        [Display("Threshold Table", Group: "Trace", Order: 30.05, Description: "Sets and returns the spurious threshold table data.")]
+        public List<ThresholdTable> ThresholdTableList { get; set; }
+
+
+        [Display("Omit User Specified Spurs", Group: "Trace", Order: 30.06, Description: "Enables and disables spur omission.")]
+        public bool OmitUserSpecifiedSpurs { get; set; }
+
+        [Display("User Spur Table", Group: "Trace", Order: 30.07, Description: "Sets and returns the User Spur Table data which defines spurs to omit.")]
+        public List<UserSpurTable> UserSpurTableList { get; set; }
 
         
         #endregion
@@ -60,11 +64,12 @@ namespace Signal_Source_Analyzer
             EnableSpurAnalysis = false;
             SpurSensibility = 3;
             MinSpurLevel = -500;
-            //ThresholdTable = ;
+            ThresholdTableList = new List<ThresholdTable>();
             OmitDisplayedSpur = false;
-            //UserSpurTable = ;
+            UserSpurTableList = new List<UserSpurTable>();
+            OmitUserSpecifiedSpurs = false;
 
-            
+
 
 
         }
@@ -82,11 +87,13 @@ namespace Signal_Source_Analyzer
             SSAX.SetPhaseNoise_EnableSpurAnalysis(Channel, mnum, EnableSpurAnalysis);
             SSAX.SetPhaseNoise_SpurSensibility(Channel, mnum, SpurSensibility);
             SSAX.SetPhaseNoise_MinSpurLevel(Channel, mnum, MinSpurLevel);
-            //SSAX.SetPhaseNoise_ThresholdTable(Channel, mnum, ThresholdTable);
+            SSAX.SetPhaseNoise_ThresholdTable(Channel, mnum, ThresholdTableList);
             SSAX.SetPhaseNoise_OmitDisplayedSpur(Channel, mnum, OmitDisplayedSpur);
-            //SSAX.SetPhaseNoise_UserSpurTable(Channel, mnum, UserSpurTable);
 
-            
+            SSAX.SetPhaseNoise_OmitUserSpecifiedSpurs(Channel, mnum, OmitUserSpecifiedSpurs);
+            SSAX.SetPhaseNoise_UserSpurTable(Channel, mnum, UserSpurTableList);
+
+
 
             UpgradeVerdict(Verdict.Pass);
         }

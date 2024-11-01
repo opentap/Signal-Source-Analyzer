@@ -40,6 +40,29 @@ namespace Signal_Source_Analyzer
         FAST,
     }
 
+    public class ThresholdTable
+    {
+        [Display("Start Freq", Order: 1)]
+        public double StartFreq { get; set; }
+        [Display("Lower Threshold", Order: 2)]
+        public double LowerThreshold { get; set; }
+        [Display("Upper Threshold", Order: 3)]
+        public double UpperThreshold { get; set; }
+
+        public ThresholdTable()
+        {
+            StartFreq = 0;
+            LowerThreshold = 0;
+            UpperThreshold = 0;
+        }
+    }
+
+    public class UserSpurTable
+    {
+        [Display("Spurious Freq", Order: 1)]
+        public double SpuriousFrequency { get; set; }
+    }
+
     public partial class SSAX : PNAX
     {
         #region Sweep
@@ -191,6 +214,7 @@ namespace Signal_Source_Analyzer
         }
         #endregion
 
+        #region RF Path
         public void SetPhaseNoise_EnableAttenuatorSetting(int Channel, bool State)
         {
             string StateValue = State ? "1" : "0";
@@ -272,7 +296,9 @@ namespace Signal_Source_Analyzer
             string RFPathConfigurationSCPI = Scpi.Format("{0}", RFPathConfiguration);
             return ScpiQuery<string>($"SENSe{Channel}:PATH:CONFig:ELEMent:STATe? \"{RFPathConfigurationSCPI}\"");
         }
+        #endregion
 
+        #region Spurious
         public void SetPhaseNoise_ShowSpuriousTable(int wnum, bool State)
         {
             string StateValue = State ? "1" : "0";
@@ -326,10 +352,22 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:THReshold:LEVel:MINimum?");
         }
 
-        //public void SetPhaseNoise_ThresholdTable(int Channel, int mnum, array data)
-        //{
-        //    ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:THReshold:TABle:DATA {data}");
-        //}
+        public void PhaseNoise_ThresholdTableDelete(int Channel, int mnum)
+        {
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:THReshold:TABle:DELete");
+        }
+
+        public void SetPhaseNoise_ThresholdTable(int Channel, int mnum, List<ThresholdTable> data)
+        {
+            string tableScpi = "";
+            foreach(ThresholdTable t in data)
+            {
+                tableScpi += Scpi.Format("{0},{1},{2},", t.StartFreq, t.LowerThreshold, t.UpperThreshold);
+            }
+            tableScpi = tableScpi.Substring(0, tableScpi.Length - 1);
+
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:THReshold:TABle:DATA {tableScpi}");
+        }
 
         public string GetPhaseNoise_ThresholdTable(int Channel, int mnum)
         {
@@ -347,16 +385,31 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OMISsion:STATe?");
         }
 
-        //public void SetPhaseNoise_UserSpurTable(int Channel, int mnum, array data)
-        //{
-        //    ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:DATA {data}");
-        //}
-
-        public Array GetPhaseNoise_UserSpurTable(int Channel, int mnum)
+        public void SetPhaseNoise_UserSpurTable(int Channel, int mnum, List<UserSpurTable> data)
         {
-            return ScpiQuery<Array>($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:DATA?");
+            string tableScpi = string.Join(",", data.Select(d => d.SpuriousFrequency));
+
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:DATA {tableScpi}");
         }
 
+        public string GetPhaseNoise_UserSpurTable(int Channel, int mnum)
+        {
+            return ScpiQuery<string>($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:DATA?");
+        }
+
+        public void SetPhaseNoise_OmitUserSpecifiedSpurs(int Channel, int mnum, bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:STATe {StateValue}");
+        }
+
+        public bool GetPhaseNoise_OmitUserSpecifiedSpurs(int Channel, int mnum)
+        {
+            return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:STATe?");
+        }
+        #endregion
+
+        #region Integrated Noise
         public void SetPhaseNoise_ShowIntegratedNoiseTable(int wnum, bool State)
         {
             string StateValue = State ? "1" : "0";
@@ -408,7 +461,9 @@ namespace Signal_Source_Analyzer
         {
             return ScpiQuery<String>($"CALCulate{Channel}:MEASure{mnum}:PN:INTegral:RANGe{range}:WEIGhting?");
         }
+        #endregion
 
+        #region Spot Noise
         public void SetPhaseNoise_ShowSpotNoiseTable(int wnum, bool State)
         {
             string StateValue = State ? "1" : "0";
@@ -451,7 +506,7 @@ namespace Signal_Source_Analyzer
         {
             return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:DECades:STATe?");
         }
-
+        #endregion
 
     }
 }
