@@ -13,7 +13,7 @@ using System.Text;
 
 namespace Signal_Source_Analyzer
 {
-    [AllowAsChildIn(typeof(GeneralTransientNewTrace))]
+    //[AllowAsChildIn(typeof(GeneralTransientNewTrace))]
     [Display("Transient Single Trace", Groups: new[] { "Signal Source Analyzer", "General", "Transient" }, Description: "Insert a description here")]
     public class GeneralTransientSingleTrace : SingleTraceBaseStep
     {
@@ -108,6 +108,7 @@ namespace Signal_Source_Analyzer
             Meas = "WB_Freq";
             measClass = "Transient";
             TransientTraceList = new List<string>() { "WB_Freq", "NB1_Freq", "NB1_Phase", "NB1_Power" };
+            EnableTraceSettings = true;
         }
 
     }

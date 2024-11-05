@@ -13,8 +13,8 @@ using System.Text;
 
 namespace Signal_Source_Analyzer
 {
-    [AllowAsChildIn(typeof(GeneralSpectrumAnalyzerChannel))]
-    [AllowChildrenOfType(typeof(GeneralSpectrumAnalyzerSingleTrace))]
+    //[AllowAsChildIn(typeof(GeneralSpectrumAnalyzerChannel))]
+    //[AllowChildrenOfType(typeof(GeneralSpectrumAnalyzerSingleTrace))]
     [Display("Spectrum Analyzer New Trace", Groups: new[] { "Signal Source Analyzer", "General", "Spectrum Analyzer" }, Description: "Insert a description here")]
     public class GeneralSpectrumAnalyzerNewTrace : AddNewTraceBaseStep
     {

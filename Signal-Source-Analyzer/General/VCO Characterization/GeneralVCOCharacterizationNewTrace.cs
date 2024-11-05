@@ -13,8 +13,8 @@ using System.Text;
 
 namespace Signal_Source_Analyzer
 {
-    [AllowAsChildIn(typeof(GeneralVCOCharacterizationChannel))]
-    [AllowChildrenOfType(typeof(GeneralVCOCharacterizationSingleTrace))]
+    //[AllowAsChildIn(typeof(GeneralVCOCharacterizationChannel))]
+    //[AllowChildrenOfType(typeof(GeneralVCOCharacterizationSingleTrace))]
     [Display("VCO Characterization New Trace", Groups: new[] { "Signal Source Analyzer", "General", "VCO Characterization" }, Description: "Insert a description here")]
     public class GeneralVCOCharacterizationNewTrace : AddNewTraceBaseStep
     {

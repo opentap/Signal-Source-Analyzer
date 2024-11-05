@@ -44,7 +44,7 @@ namespace Signal_Source_Analyzer
         ADEV
     }
 
-    [AllowAsChildIn(typeof(GeneralPhaseNoiseNewTrace))]
+    //[AllowAsChildIn(typeof(GeneralPhaseNoiseNewTrace))]
     [Display("Phase Noise Single Trace", Groups: new[] { "Signal Source Analyzer", "General",  "Phase Noise" }, Description: "Insert a description here")]
     public class GeneralPhaseNoiseSingleTrace : SingleTraceBaseStep
     {
@@ -103,6 +103,7 @@ namespace Signal_Source_Analyzer
         {
             Meas = PhaseNoiseTraceEnum.PN;
             measClass = "Phase Noise";
+            EnableTraceSettings = true;
         }
 
     }

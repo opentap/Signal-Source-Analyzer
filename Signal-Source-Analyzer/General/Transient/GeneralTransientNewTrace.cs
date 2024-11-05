@@ -13,8 +13,8 @@ using System.Text;
 
 namespace Signal_Source_Analyzer
 {
-    [AllowAsChildIn(typeof(GeneralTransientChannel))]
-    [AllowChildrenOfType(typeof(GeneralTransientSingleTrace))]
+    //[AllowAsChildIn(typeof(GeneralTransientChannel))]
+    //[AllowChildrenOfType(typeof(GeneralTransientSingleTrace))]
     [Display("Transient New Trace", Groups: new[] { "Signal Source Analyzer", "General", "Transient" }, Description: "Insert a description here")]
     public class GeneralTransientNewTrace : AddNewTraceBaseStep
     {
