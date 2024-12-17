@@ -13,8 +13,8 @@ using System.Text;
 
 namespace Signal_Source_Analyzer
 {
-    [AllowAsChildIn(typeof(GeneralPhaseNoiseChannel))]
-    [AllowChildrenOfType(typeof(GeneralPhaseNoiseSingleTrace))]
+    //[AllowAsChildIn(typeof(GeneralPhaseNoiseChannel))]
+    //[AllowChildrenOfType(typeof(GeneralPhaseNoiseSingleTrace))]
     [Display("Phase Noise New Trace", Groups: new[] { "Signal Source Analyzer", "General",  "Phase Noise" }, Description: "Insert a description here")]
     public class GeneralPhaseNoiseNewTrace : AddNewTraceBaseStep
     {
@@ -27,6 +27,7 @@ namespace Signal_Source_Analyzer
         {
             Meas = PhaseNoiseTraceEnum.PN;
             ChildTestSteps.Add(new GeneralPhaseNoiseSingleTrace() { SSAX = this.SSAX, Meas = this.Meas, Channel = this.Channel, IsControlledByParent = true, EnableTraceSettings = true });
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
         }
 
         [Browsable(false)]

@@ -7,8 +7,8 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="OpenTAP" Version="9.24.0" />
-   	<OpenTapPackageReference Include="Network Analyzer" Version="0.6.4-alpha.1.5" />
+    <PackageReference Include="OpenTAP" Version="9.26.1" />
+   	<OpenTapPackageReference Include="Network Analyzer" Version="0.7.0" />
     <OpenTapPackageReference Include="OpenTAP" />
   </ItemGroup>
     
@@ -40,6 +40,6 @@
   </ItemGroup>
 
   <ItemGroup Condition="'$(DebugWith)' == 'Editor' AND '$(Configuration)' == 'Debug'">
-    <OpenTapPackageReference Include="Editor" version="9" />
+    <OpenTapPackageReference Include="Developer's System" version="9" />
   </ItemGroup>
 </Project>

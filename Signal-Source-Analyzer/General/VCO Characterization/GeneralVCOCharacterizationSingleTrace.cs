@@ -27,7 +27,7 @@ namespace Signal_Source_Analyzer
         CurrentVS2,
     }
 
-    [AllowAsChildIn(typeof(GeneralVCOCharacterizationNewTrace))]
+    //[AllowAsChildIn(typeof(GeneralVCOCharacterizationNewTrace))]
     [Display("VCO Characterization Single Trace", Groups: new[] { "Signal Source Analyzer", "General", "VCO Characterization" }, Description: "Insert a description here")]
     public class GeneralVCOCharacterizationSingleTrace : SingleTraceBaseStep
     {
@@ -61,6 +61,7 @@ namespace Signal_Source_Analyzer
         {
             Meas = VCOCharacterizationTraceEnum.Freq;
             measClass = "VCO Characterization";
+            EnableTraceSettings = true;
         }
 
     }

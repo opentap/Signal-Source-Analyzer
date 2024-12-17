@@ -44,7 +44,7 @@ namespace Signal_Source_Analyzer
         ADEV
     }
 
-    [AllowAsChildIn(typeof(GeneralPhaseNoiseNewTrace))]
+    //[AllowAsChildIn(typeof(GeneralPhaseNoiseNewTrace))]
     [Display("Phase Noise Single Trace", Groups: new[] { "Signal Source Analyzer", "General",  "Phase Noise" }, Description: "Insert a description here")]
     public class GeneralPhaseNoiseSingleTrace : SingleTraceBaseStep
     {
@@ -68,6 +68,31 @@ namespace Signal_Source_Analyzer
             }
         }
 
+        [Browsable(true)]
+        [Display("Spurious", Groups: new[] { "Phase Noise" }, Order: 90.1)]
+        public void AddSpurious()
+        {
+            ChildTestSteps.Add(new GeneralPhaseNoiseSpurious() { SSAX = SSAX, Channel = Channel, IsControlledByParent = true });
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
+        }
+
+        [Browsable(true)]
+        [Display("Integrated Noise", Groups: new[] { "Phase Noise" }, Order: 90.2)]
+        public void AddIntegratedNoise()
+        {
+            ChildTestSteps.Add(new GeneralPhaseNoiseIntegratedNoise() { SSAX = SSAX, Channel = Channel, IsControlledByParent = true });
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
+        }
+
+        [Browsable(true)]
+        [Display("Spot Noise", Groups: new[] { "Phase Noise" }, Order: 90.3)]
+        public void AddSpotNoise()
+        {
+            ChildTestSteps.Add(new GeneralPhaseNoiseSpotNoise() { SSAX = SSAX, Channel = Channel, IsControlledByParent = true });
+            ChildItemVisibility.SetVisibility(this, ChildItemVisibility.Visibility.Visible);
+        }
+
+
         public override void PrePlanRun()
         {
             base.PrePlanRun();
@@ -78,6 +103,7 @@ namespace Signal_Source_Analyzer
         {
             Meas = PhaseNoiseTraceEnum.PN;
             measClass = "Phase Noise";
+            EnableTraceSettings = true;
         }
 
     }

@@ -19,7 +19,7 @@ namespace Signal_Source_Analyzer
         SA2
     }
     
-    [AllowAsChildIn(typeof(GeneralSpectrumAnalyzerNewTrace))]
+    //[AllowAsChildIn(typeof(GeneralSpectrumAnalyzerNewTrace))]
     [Display("Spectrum Analyzer Single Trace", Groups: new[] { "Signal Source Analyzer", "General", "Spectrum Analyzer" }, Description: "Insert a description here")]
     public class GeneralSpectrumAnalyzerSingleTrace : SingleTraceBaseStep
     {
@@ -53,6 +53,7 @@ namespace Signal_Source_Analyzer
         {
             Meas = SpectrumAnalyzerTraceEnum.SA1;
             measClass = "Spectrum Analyzer";
+            EnableTraceSettings = true;
         }
 
     }

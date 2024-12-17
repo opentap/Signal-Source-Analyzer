@@ -35,8 +35,34 @@ namespace Signal_Source_Analyzer
     public class GeneralPhaseNoiseSweep : SSAXBaseStep
     {
         #region Settings
+        private PhaseNoise_NoiseTypeEnum _NoiseType;
         [Display("Noise Type", Group: "Settings", Order: 20.1, Description: "Sets and returns the noise type to phase or residual noise")]
-        public PhaseNoise_NoiseTypeEnum NoiseType { get; set; }
+        public PhaseNoise_NoiseTypeEnum NoiseType
+        {
+            get
+            {
+                return _NoiseType;
+            }
+            set
+            {
+                _NoiseType = value;
+                // If this step has a Transient Channel Parent then update its Sweep Type
+                try
+                {
+                    var a = GetParent<GeneralPhaseNoiseChannel>();
+                    // only if there is a parent of type GeneralTransientChannel
+                    if (a != null)
+                    {
+                        a.NoiseType = _NoiseType;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    // Nothing to worry about!
+                    //Log.Debug("can't find parent yet! ex: " + ex.Message);
+                }
+            }
+        }
 
         [Display("Sweep Type", Group: "Settings", Order: 20.2, Description: "Sets and returns the phase noise sweep type to logarithmic or segment")]
         public PhaseNoise_SweepTypeEnum SweepType { get; set; }
@@ -65,22 +91,27 @@ namespace Signal_Source_Analyzer
         [Display("Fast XCORR Mode", Group: "Measurement", Order: 30.5, Description: "Selects the correlation mode from normal or fast")]
         public PhaseNoise_FastXCORRModeEnum FastXCORRMode { get; set; }
 
-        [EnabledIf("EnableSearch", true, HideIfDisabled = true)]
+        [EnabledIf("NoiseType", PhaseNoise_NoiseTypeEnum.PNOise, HideIfDisabled = true)]
+        [EnabledIf("EnableSearch", false, HideIfDisabled = true)]
         [Display("Carrier Frequency", Group: "Source", Order: 40.2, Description: "Sets and returns the carrier frequency")]
         [Unit("Hz", UseEngineeringPrefix: true, StringFormat: "0.000000000")]
         public double CarrierFrequency { get; set; }
 
+        [EnabledIf("NoiseType", PhaseNoise_NoiseTypeEnum.PNOise, HideIfDisabled = true)]
         [Display("Enable Search", Group: "Source", Order: 40.1, Description: "Enables and disables a broadband carrier search within the range specified using the SENSe:PN:ADJust:CONFigure:FREQuency:LIMit:LOW and SENSe:PN:ADJust:CONFigure:FREQuency:LIMit:HIGH commands.")]
         public bool EnableSearch { get; set; }
 
+        [EnabledIf("NoiseType", PhaseNoise_NoiseTypeEnum.PNOise, HideIfDisabled = true)]
         [Display("Enable Pulse", Group: "Source", Order: 40.3, Description: "Sets and returns the state of pulse modulation")]
         public bool EnablePulse { get; set; }
 
+        [EnabledIf("NoiseType", PhaseNoise_NoiseTypeEnum.PNOise, HideIfDisabled = true)]
         [EnabledIf("EnablePulse", true, HideIfDisabled = true)]
         [Display("Pulse Period", Group: "Source", Order: 40.4, Description: "Sets and returns the period of pulse modulation")]
         [Unit("Sec", UseEngineeringPrefix: true, StringFormat: "0.0000")]
         public double PulsePeriod { get; set; }
 
+        [EnabledIf("NoiseType", PhaseNoise_NoiseTypeEnum.PNOise, HideIfDisabled = true)]
         [EnabledIf("SweepType", PhaseNoise_SweepTypeEnum.SEGMent, HideIfDisabled = true)]
         [Display("Segment Setup", Group: "Measurement", Order: 30.1, Description: "Segment Sweep Setup")]
         public List<PhaseNoiseSegmentDefinition> SegmentSweepSetup { get; set; }
@@ -166,12 +197,13 @@ namespace Signal_Source_Analyzer
 
             ViewSegmentTable();
 
-            SSAX.SetPhaseNoise_CarrierFrequency(Channel, CarrierFrequency);
-            SSAX.SetPhaseNoise_EnableSearch(Channel, EnableSearch);
-            SSAX.SetPhaseNoise_EnablePulse(Channel, EnablePulse);
-            SSAX.SetPhaseNoise_PulsePeriod(Channel, PulsePeriod);
-
-
+            if (NoiseType == PhaseNoise_NoiseTypeEnum.PNOise)
+            {
+                SSAX.SetPhaseNoise_CarrierFrequency(Channel, CarrierFrequency);
+                SSAX.SetPhaseNoise_EnableSearch(Channel, EnableSearch);
+                SSAX.SetPhaseNoise_EnablePulse(Channel, EnablePulse);
+                SSAX.SetPhaseNoise_PulsePeriod(Channel, PulsePeriod);
+            }
 
             UpgradeVerdict(Verdict.Pass);
         }

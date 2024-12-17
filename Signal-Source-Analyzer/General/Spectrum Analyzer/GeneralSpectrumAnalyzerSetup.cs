@@ -57,7 +57,7 @@ namespace Signal_Source_Analyzer
         VideoBandwidth = 8
     }
 
-    [AllowAsChildIn(typeof(GeneralSpectrumAnalyzerChannel))]
+    //[AllowAsChildIn(typeof(GeneralSpectrumAnalyzerChannel))]
     [Display("Spectrum Analyzer Setup", Groups: new[] { "Signal Source Analyzer", "General", "Spectrum Analyzer" }, Description: "Insert a description here")]
     public class GeneralSpectrumAnalyzerSetup : SSAXBaseStep
     {

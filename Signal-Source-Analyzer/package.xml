@@ -13,7 +13,7 @@ $(GitVersion) - Gets the version from Git in the recommended format Major.Minor.
 	<SourceUrl>https://github.com/opentap/Signal-Source-Analyzer</SourceUrl>
 	<SourceLicense>MIT</SourceLicense>
 	<Dependencies>
-		<Dependency Name="Network Analyzer" Version="0.6.4-alpha.1.5" />
+		<Dependency Name="Network Analyzer" Version="0.7.0" />
 	</Dependencies>
 	<Files>
     	<File Path="Packages/Signal Source Analyzer/Signal-Source-Analyzer.dll" SourcePath="Signal-Source-Analyzer.dll">
