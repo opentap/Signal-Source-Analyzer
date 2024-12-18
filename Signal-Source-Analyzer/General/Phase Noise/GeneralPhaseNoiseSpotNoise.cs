@@ -109,6 +109,7 @@ namespace Signal_Source_Analyzer
             }
             else
             {
+                SSAX.SetPhaseNoise_DecadeEdges(Channel, mnum, DecadeEdges);
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 1, SpotFrequenciesUser1.SpotFrequency);
                 SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 1, SpotFrequenciesUser1.SpotFrequencyEnabled);
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 2, SpotFrequenciesUser2.SpotFrequency);
