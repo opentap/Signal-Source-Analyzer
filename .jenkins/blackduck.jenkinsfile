@@ -1,0 +1,163 @@
+// groovylint-disable ConsecutiveBlankLines
+
+
+Map vaultConfiguration = [
+    engineVersion: 2,
+    timeout: 60,
+    vaultUrl: 'https://vault.keysight.com',
+    vaultCredentialId: 'vault-approle'
+]
+ 
+ArrayList<Map> vaultSecrets = [
+    [
+        engineVersion: 2,
+        path: 'kosi-devops/team-opentapplugin/accounts/CBCI-opentapplugin',
+        secretValues: [
+             [envVar: 'Ks8500Token', vaultKey: 'repo-pathwave-token'],
+        ]
+    ]
+]
+
+// groovylint-disable-next-line
+@Library('KOSi Pipeline Library@v5.3.1') _
+
+Map projectConfig =
+[
+    'blackDuck': [
+        'plcStage': 'Released'
+    ],
+    'scanAgentLabel': 'windows',
+    'projectName': 'placeholderA',
+    'versionInfo': [
+        'version':  'placeholderB'
+    ],
+    'sourceDirectory': '.',
+    'logLevel': 'debug',
+    'blackDuckExcludeTypes': 'PEAR'
+]
+
+// =====================================================================
+// KpcBuildAgents Configuration
+// =====================================================================
+List PipelineAgents =
+[
+    [label: 'windows', type: 'vsphere', jenkinsHostLabel: 'windows']
+]
+def PipelineKpcBuildAgents = GetKpcBuildAgentsSingleton()
+
+// =====================================================================
+// Kubernetes KOSi Pipeline Executor Configuration
+// =====================================================================
+KosiLoadKplContainerExtensions()
+InsertKpeKubernetesAgentInfo(projectConfig)
+
+// =====================================================================
+// The Pipeline
+// =====================================================================
+pipeline
+{
+    agent
+    {
+        kubernetes
+        {
+            yaml projectConfig.KpekubernetesConfig.kubernetesLinuxAgent.yaml
+        }
+    }
+
+    options
+    {
+        disableConcurrentBuilds()
+        disableResume()
+        skipDefaultCheckout true
+        timestamps()
+    }
+
+    stages
+    {
+        stage('Initialize Library Data')
+        {
+            steps
+            {
+                InsertPipelineInitialization(projectConfig)
+            }
+        }
+
+        stage('KPC Reservation')
+        {
+            steps
+            {
+                script
+                {
+                    PipelineKpcBuildAgents.Reserve(projectConfig, PipelineAgents)
+                }
+            }
+        }
+
+        stage('Prepare Build Agent Workspace')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {
+                    List packageConfigs = [
+                        [packageType: 'dotnet']
+                    ]
+                    PipelineStagePrepare(projectConfig, packageConfigs)
+                }
+            }
+        }
+
+        stage('Build software')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                withVault([configuration: vaultConfiguration, vaultSecrets: vaultSecrets])
+                {
+                    script
+                    {
+                        echo "Build project"              
+                        powershell """
+                            dotnet build -c Release --property:Ks8500Token="\$env:Ks8500Token"
+                            """
+                        version = powershell(script: """
+                            \$tapPath=\$(dir -r tap.exe) | Where-Object { \$_.Directory.FullName -match "Release" } | Select-Object -ExpandProperty FullName
+                            write-output((& \$tapPath sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
+                            """, returnStdout: true).trim()
+                        echo "Version: ${version}"
+
+                        projectConfig.projectName = "${env.JOB_BASE_NAME}" 
+                        projectConfig.versionInfo.version = "${projectConfig.projectName}-${version}" 
+                    }
+                }
+            }
+        }
+
+        stage('Black Duck Scan')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {                    
+                    projectConfig.scanAgent = env.NODE_NAME
+                    projectConfig.projectScanName = projectConfig.versionInfo.version
+                    projectConfig.projectVersionName = projectConfig.versionInfo.version
+                    BlackDuckScan(projectConfig)
+                }
+            }
+        }
+    }
+    
+    post
+    {
+        always
+        {
+            script
+            {
+                PipelineKpcBuildAgents.Release(projectConfig)
+            }
+        }
+    }
+}
