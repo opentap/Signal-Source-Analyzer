@@ -1,0 +1,269 @@
+// groovylint-disable ConsecutiveBlankLines
+
+
+Map vaultConfiguration = [
+    engineVersion: 2,
+    timeout: 60,
+    vaultUrl: 'https://vault.keysight.com',
+    vaultCredentialId: 'vault-approle'
+]
+ 
+ArrayList<Map> vaultSecrets = [
+    [
+        engineVersion: 2,
+        path: 'kosi-devops/team-opentapplugin/accounts/CBCI-opentapplugin', 
+        secretValues: [
+             [envVar: 'Ks8500Token', vaultKey: 'repo-pathwave-token'],
+             [envVar: 'VmtApiKey', vaultKey: 'vmt-jwt-token']
+        ]
+    ]
+]
+
+// groovylint-disable-next-line
+@Library('KOSi Pipeline Library@v5.3.1') _
+
+Map projectConfig =
+[
+    'vmtProjectId': '699',
+    'vmtVersionId': 'placeHolderA',
+    'vmtTargetVm': '',
+    'jobFullName': '',
+    'projectName': 'placeholderB',
+    'scanAgentLabel': 'windows',
+    
+    'logLevel': 'debug',
+    'vmt': [
+        'url': 'https://vmt-app-int-elb.blackduck.usw2.amzn.keysight.com'
+    ]
+]
+
+// =====================================================================
+// KpcBuildAgents Configuration
+// =====================================================================
+List PipelineAgents =
+[
+    [label: 'windows', type: 'vsphere', jenkinsHostLabel: 'windows']
+]
+def PipelineKpcBuildAgents = GetKpcBuildAgentsSingleton()
+
+// =====================================================================
+// Kubernetes KOSi Pipeline Executor Configuration
+// =====================================================================
+KosiLoadKplContainerExtensions()
+InsertKpeKubernetesAgentInfo(projectConfig)
+
+// =====================================================================
+// The Pipeline
+// =====================================================================
+pipeline
+{
+    agent
+    {
+        kubernetes
+        {
+            yaml projectConfig.KpekubernetesConfig.kubernetesLinuxAgent.yaml
+        }
+    }
+
+    options
+    {
+        disableConcurrentBuilds()
+        disableResume()
+        skipDefaultCheckout true
+        timestamps()
+    }
+
+    stages
+    {
+        stage('Initialize Library Data')
+        {
+            steps
+            {
+                InsertPipelineInitialization(projectConfig)
+            }
+        }
+
+        stage('KPC Reservation')
+        {
+            steps
+            {
+                script
+                {
+                    PipelineKpcBuildAgents.Reserve(projectConfig, PipelineAgents)
+                }
+            }
+        }
+
+        stage('Prepare Build Agent Workspace')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {
+                    List packageConfigs = [
+                        [packageType: 'dotnet']
+                    ]
+                    PipelineStagePrepare(projectConfig, packageConfigs)
+                }
+            }
+        }
+
+        stage('Build software')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                withVault([configuration: vaultConfiguration, vaultSecrets: vaultSecrets])
+                {
+                    script
+                    {
+                        echo "Build project"              
+                        powershell """
+                            dotnet build -c Release --property:Ks8500Token="\$env:Ks8500Token"
+                            """
+                        version = powershell(script: """
+                            \$tapPath=\$(dir -r tap.exe) | Where-Object { \$_.Directory.FullName -match "Release" } | Select-Object -ExpandProperty FullName
+                            write-output((& \$tapPath sdk gitversion | Select-Object -Last 1) -replace "\\+.*\$","")
+                            """, returnStdout: true).trim()
+                        echo "Version: ${version}"
+                        tapPath = powershell(script: """
+                            \$tapPath=\$(dir -r tap.exe) | Where-Object { \$_.Directory.FullName -match "Release" } | Select-Object -ExpandProperty FullName
+                            write-output(\$tapPath)
+                            """, returnStdout: true).trim()
+                        echo "TAP Path: ${tapPath}"
+                        
+                        projectConfig.projectName = "${env.JOB_BASE_NAME}" 
+                    }
+                }
+            }
+        }
+
+        stage('Create VMT Version')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                withVault([configuration: vaultConfiguration, vaultSecrets: vaultSecrets])
+                {
+                    script
+                    {
+                        versionId = powershell(script: """
+                            # Define the Headers with the Bearer Token
+
+                            \$headers = @{"Authorization" = \$env:VmtApiKey}
+                            \$body = @{
+                                "Version Name" = "${projectConfig.projectName}-${version}";
+                                "Milestone Status" = "PM";
+                                "Operating System" = "Windows 10 from Keysight Labs";
+                                "Product Type" = "SAO";
+                                "LXI Product" = "false"
+                            }
+                            
+                            \$bodyJson = \$body | ConvertTo-Json
+                            \$response = Invoke-RestMethod -Uri "${projectConfig.vmt.url}/api/v2/projects/${projectConfig.vmtProjectId}/versions/" -Method Post -Body \$bodyJson -Headers \$headers -ContentType "application/json" 
+                            \$versionId = \$response.Version.Split("/", [System.StringSplitOptions]::RemoveEmptyEntries)[-1]
+                            write-output(\$versionId)
+                            """, returnStdout: true).trim()
+
+                        projectConfig.vmtVersionId = "${versionId}"
+                    }
+                }
+            }            
+        }
+
+        stage('VMT Base Scan')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {                 
+                    def stageIp = powershell(script: '(Get-NetIPAddress -AddressFamily IPv4 -PrefixOrigin Dhcp).IPAddress', returnStdout: true).trim()
+                    echo "Stage IP: '${stageIp}'"
+                    projectConfig.vmtTargetVm = stageIp
+
+                    echo "Start TAP before base scan"
+                    powershell """
+                        \$env:JENKINS_NODE_COOKIE="dontKillMe"
+                        Start-Process -WindowStyle Hidden -FilePath "${tapPath}" -ArgumentList "run --ignore-load-errors -v .\\.jenkins\\pause_8hours.TapPlan"
+                        """
+                    sleep time: 30, unit: 'SECONDS'
+         
+                    echo "Base scan"
+                    projectConfig.jobFullName = "${projectConfig.projectName}-${version}-base" 
+ 
+                    NessusScan(projectConfig)
+ 
+                    echo "Base scan done"
+                    echo "Kill TAP after base scan"
+                    powershell """
+                        & taskkill /F /T /IM tap.exe
+                        """
+                }
+            }
+        }
+
+        stage('Install plugin')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {                 
+                    echo "Install plugin"
+                    powershell """
+                        \$(dir -r *.TapPackage) | ForEach-Object {& "${tapPath}" package install \$_.FullName}
+                        """
+                }
+            }
+        }
+
+        stage('Refresh the Vault token')
+        {
+            steps
+            {
+                InsertVaultTokenViaJava(projectConfig)
+            }
+        }
+
+        stage('VMT Diff Scan')
+        {
+            agent { label "${PipelineKpcBuildAgents.GetAgentLabelExpression(projectConfig.scanAgentLabel)}" }
+            steps
+            {
+                script
+                {                 
+                    echo "Start TAP before diff scan"
+                    powershell """
+                        \$env:JENKINS_NODE_COOKIE="dontKillMe"
+                        Start-Process -WindowStyle Hidden -FilePath "${tapPath}" -ArgumentList "run --ignore-load-errors -v .\\.jenkins\\pause_8hours.TapPlan"
+                        """
+                    sleep time: 30, unit: 'SECONDS'
+
+                    echo "Diff scan"
+                    projectConfig.jobFullName = "${projectConfig.projectName}-${version}-diffscan" 
+                    
+                    NessusScan(projectConfig)
+                    
+                    echo "Diff scan done"
+                    echo "Kill TAP after diff scan"
+                    powershell """
+                        & taskkill /F /T /IM tap.exe
+                        """
+                }
+            }
+        }
+    }
+
+    post
+    {
+        always
+        {
+            script
+            {
+                PipelineKpcBuildAgents.Release(projectConfig)
+            }
+        }
+    }
+}
