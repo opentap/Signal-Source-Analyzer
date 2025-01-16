@@ -99,6 +99,7 @@ namespace Signal_Source_Analyzer
                 SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange1.WeighthingFilter);
             }
 
+            range = 2;
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange2.IntegratedRangeType);
             SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange2.Start);
             SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange2.Stop);
@@ -107,6 +108,7 @@ namespace Signal_Source_Analyzer
                 SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange2.WeighthingFilter);
             }
 
+            range = 3;
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange3.IntegratedRangeType);
             SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange3.Start);
             SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange3.Stop);
@@ -115,6 +117,7 @@ namespace Signal_Source_Analyzer
                 SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange3.WeighthingFilter);
             }
 
+            range = 4;
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange4.IntegratedRangeType);
             SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange4.Start);
             SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange4.Stop);

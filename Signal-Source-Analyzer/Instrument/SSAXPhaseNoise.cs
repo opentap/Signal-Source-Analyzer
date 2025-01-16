@@ -13,8 +13,8 @@ namespace Signal_Source_Analyzer
         [Scpi("PNOise")]
         [Display("Phase Noise")]
         PNOise,
-        //[Scpi("RESidual")]
-        //RESidual,
+        [Scpi("RESidual")]
+        RESidual,
         [Scpi("BASeband")]
         [Display("Baseband Noise")]
         BASeband,
@@ -38,6 +38,24 @@ namespace Signal_Source_Analyzer
         [Scpi("FAST")]
         [Display("Fast")]
         FAST,
+    }
+
+    public enum PhaseNoiseSourceEnum
+    {
+        [Scpi("EXTernal")]
+        [Display("External")]
+        EXTernal,
+        [Scpi("INTernal")]
+        [Display("Internal")]
+        INTernal,
+    }
+
+    public enum PhaseNoiseSourceOutEnum
+    {
+        [Display("Source 1 Out")]
+        Source1Out,
+        [Display("Source 2 Out")]
+        Source2Out,
     }
 
     public class ThresholdTable
@@ -215,20 +233,59 @@ namespace Signal_Source_Analyzer
         #endregion
 
         #region RF Path
-        public void SetPhaseNoise_EnableAttenuatorSetting(int Channel, bool State)
+
+        public void SetPhaseNoise_RFInput(int Channel, SSAXPortsEnum RFInput)
+        {
+            string RFInputSCPI = Scpi.Format("{0}", RFInput);
+            ScpiCommand($"SENSe{Channel}:PN:PORT {RFInputSCPI}");
+        }
+
+        public SSAXPortsEnum GetPhaseNoise_RFInput(int Channel)
+        {
+            return ScpiQuery<SSAXPortsEnum>($"SENSe{Channel}:PN:PORT?");
+        }
+
+        public void SetPhaseNoise_AutoRange(int Channel, SSAXPortsEnum port, bool State)
+        {
+            string PortSCPI = Scpi.Format("{0}", port);
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"SENSe{Channel}:PN:POWer:INPut{PortSCPI}:LEVel:AUTO {StateValue}");
+        }
+
+        public void SetPhaseNoise_MaxInputLevel(int Channel, SSAXPortsEnum port, double value)
+        {
+            string PortSCPI = Scpi.Format("{0}", port);
+            ScpiCommand($"SENSe{Channel}:PN:POWer:INPut{PortSCPI}:LEVel:MAXimum {value}");
+        }
+
+        public void SetPhaseNoise_AlwaysUseInternalReference(int Channel, bool State)
         {
             string StateValue = State ? "1" : "0";
-            ScpiCommand($"SENSe{Channel}:PN:POWer:INPut:ATTenuation:AUTO {StateValue}");
+            ScpiCommand($"SENSe{Channel}:PN:ROSCillator:SOURce:FIXed:STATe {StateValue}");
         }
 
-        public bool GetPhaseNoise_EnableAttenuatorSetting(int Channel)
+        public bool GetPhaseNoise_AlwaysUseInternalReference(int Channel)
         {
-            return ScpiQuery<bool>($"SENSe{Channel}:PN:POWer:INPut:ATTenuation:AUTO?");
+            return ScpiQuery<bool>($"SENSe{Channel}:PN:ROSCillator:SOURce:FIXed:STATe?");
         }
 
-        public void SetPhaseNoise_Attenuator(int Channel, double value)
+        public void SetPhaseNoise_EnableAttenuatorSetting(int Channel, SSAXPortsEnum port, bool State)
         {
-            ScpiCommand($"SENSe{Channel}:PN:POWer:INPut:ATTenuation {value}");
+            string PortSCPI = Scpi.Format("{0}", port);
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"SENSe{Channel}:PN:POWer:INPut{PortSCPI}:ATTenuation:AUTO {StateValue}");
+        }
+
+        public bool GetPhaseNoise_EnableAttenuatorSetting(int Channel, SSAXPortsEnum port)
+        {
+            string PortSCPI = Scpi.Format("{0}", port);
+            return ScpiQuery<bool>($"SENSe{Channel}:PN:POWer:INPut{PortSCPI}:ATTenuation:AUTO?");
+        }
+
+        public void SetPhaseNoise_Attenuator(int Channel, SSAXPortsEnum port, double value)
+        {
+            string PortSCPI = Scpi.Format("{0}", port);
+            ScpiCommand($"SENSe{Channel}:PN:POWer:INPut{PortSCPI}:ATTenuation {value}");
         }
 
         public void SetPhaseNoise_BasebandInput(int Channel, PhaseNoise_BasebandInputEnum BasebandInput)
@@ -257,16 +314,16 @@ namespace Signal_Source_Analyzer
             ScpiCommand($"SENSe{Channel}:PN:BASeband:BASeband:DISCharge");
         }
 
-        public void SetPhaseNoise_AnalyzerInput(int Channel, PhaseNoise_AnalyzerInputEnum AnalyzerInput)
-        {
-            string AnalyzerInputSCPI = Scpi.Format("{0}", AnalyzerInput);
-            ScpiCommand($"SENSe{Channel}:PN:RECeiver  {AnalyzerInputSCPI}");
-        }
+        //public void SetPhaseNoise_AnalyzerInput(int Channel, PhaseNoise_AnalyzerInputEnum AnalyzerInput)
+        //{
+        //    string AnalyzerInputSCPI = Scpi.Format("{0}", AnalyzerInput);
+        //    ScpiCommand($"SENSe{Channel}:PN:RECeiver  {AnalyzerInputSCPI}");
+        //}
 
-        public PhaseNoise_AnalyzerInputEnum GetPhaseNoise_AnalyzerInput(int Channel)
-        {
-            return ScpiQuery<PhaseNoise_AnalyzerInputEnum>($"SENSe{Channel}:PN:RECeiver?");
-        }
+        //public PhaseNoise_AnalyzerInputEnum GetPhaseNoise_AnalyzerInput(int Channel)
+        //{
+        //    return ScpiQuery<PhaseNoise_AnalyzerInputEnum>($"SENSe{Channel}:PN:RECeiver?");
+        //}
 
         // SSAXPortsEnum
         public void SetPhaseNoise_ReceiverAttenuation(int Channel, SSAXPortsEnum port, double value)
