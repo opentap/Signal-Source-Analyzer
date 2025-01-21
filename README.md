@@ -26,3 +26,4 @@ For any questions, issues, or assistance, please submit an Issue in this repo.
 ## License
 The Signal Source Analyzer Plugin is released under the MIT License. Feel free to use, modify, and distribute it in accordance with the terms of the license.
 
+
