@@ -1,17 +1,19 @@
-# Configure the name of this CI unit. This is the name that appears in the GitHub Actions tab
-name: CI
-# Configure what events trigger this action.
-on: [push]
+name: Manual Build / Publish Branch
 
-# Configure environment variables that are global to the action defined by this file
+on: 
+  workflow_dispatch: 
+    inputs:
+      publish:
+        description: 'Publish to packages.opentap.io'
+        required: false
+        type: boolean
 env:
-  #OPENTAP_COLOR: auto # github messes with the "auto" color detection (i.e. it has no effect), and the "always" option breaks a lot of things
   OPENTAP_ANSI_COLORS: true
   OPENTAP_NO_UPDATE_CHECK: true
   DOTNET_CLI_TELEMETRY_OPTOUT: true
   DOTNET_CONSOLE_ANSI_COLOR: true
 
-jobs:
+jobs:    
   GetVersion:
     runs-on:
        group: OpenTAP-SpokeVPC
@@ -73,28 +75,9 @@ jobs:
           name: tap-package
           retention-days: 5
           path: |
-            **/bin/Release/*.TapPackage
-
-  # UnitTests:
-  #   runs-on:
-  #      group: OpenTAP-SpokeVPC
-  #      labels:  [Linux, X64]
-  #   container: ghcr.io/opentap/oci-images/build-dotnet:latest
-  #   steps:
-  #     - name: Checkout
-  #       uses: actions/checkout@v4
-
-  #     - name: Setup .NET
-  #       uses: actions/setup-dotnet@v4
-  #       with:
-  #         dotnet-version: 6.0.x
-
-  #     - name: Build
-  #       run: dotnet test
-
-
-  publish:
-    if: github.ref == 'refs/heads/main' || contains(github.ref, 'refs/heads/release') || contains(github.ref, 'refs/tags/v')
+            **/bin/Release/*.TapPackage      
+  manual-publish:
+    if: ${{ inputs.publish }}
     runs-on:
        group: OpenTAP-SpokeVPC
        labels:  [Linux, X64]
