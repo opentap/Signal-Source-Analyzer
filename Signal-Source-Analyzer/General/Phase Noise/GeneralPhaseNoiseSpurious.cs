@@ -87,12 +87,17 @@ namespace Signal_Source_Analyzer
             SSAX.SetPhaseNoise_EnableSpurAnalysis(Channel, mnum, EnableSpurAnalysis);
             SSAX.SetPhaseNoise_SpurSensibility(Channel, mnum, SpurSensibility);
             SSAX.SetPhaseNoise_MinSpurLevel(Channel, mnum, MinSpurLevel);
-            SSAX.SetPhaseNoise_ThresholdTable(Channel, mnum, ThresholdTableList);
+            if (ThresholdTableList.Count > 0)
+            {
+                SSAX.SetPhaseNoise_ThresholdTable(Channel, mnum, ThresholdTableList);
+            }
             SSAX.SetPhaseNoise_OmitDisplayedSpur(Channel, mnum, OmitDisplayedSpur);
 
             SSAX.SetPhaseNoise_OmitUserSpecifiedSpurs(Channel, mnum, OmitUserSpecifiedSpurs);
-            SSAX.SetPhaseNoise_UserSpurTable(Channel, mnum, UserSpurTableList);
-
+            if (UserSpurTableList.Count > 0)
+            {
+                SSAX.SetPhaseNoise_UserSpurTable(Channel, mnum, UserSpurTableList);
+            }
 
 
             UpgradeVerdict(Verdict.Pass);

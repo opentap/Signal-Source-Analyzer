@@ -41,6 +41,9 @@ namespace Signal_Source_Analyzer
         [Display("Show Spot Noise Table", Group: "Settings", Order: 20.01, Description: "Enable or disable displaying the spot noise table.")]
         public bool ShowSpotNoiseTable { get; set; }
 
+        [Display("Enable Spot Noise", Group: "Settings", Order: 20.02, Description: "Enables and disables spot noise calculation for the selected measurement number.")]
+        public bool EnableSpotNoise { get; set; }
+
         [Display("Decade Edges", Group: "Settings", Order: 20.04, Description: "Enables and disables the spot noise calculation on every decade offset frequency.")]
         public bool DecadeEdges { get; set; }
 
@@ -79,6 +82,7 @@ namespace Signal_Source_Analyzer
         public GeneralPhaseNoiseSpotNoise()
         {
             ShowSpotNoiseTable = false;
+            EnableSpotNoise = false;
             DecadeEdges = true;
 
             SpotFrequenciesUser1 = new SpotFrequencies();
@@ -103,25 +107,43 @@ namespace Signal_Source_Analyzer
             RunChildSteps(); //If the step supports child steps.
 
             SSAX.SetPhaseNoise_ShowSpotNoiseTable(wnum, ShowSpotNoiseTable);
-            if (DecadeEdges)
+            SSAX.SetPhaseNoise_SpotNoiseEnable(Channel, mnum, EnableSpotNoise);
+            SSAX.SetPhaseNoise_DecadeEdges(Channel, mnum, DecadeEdges);
+            
+            SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 1, SpotFrequenciesUser1.SpotFrequencyEnabled);
+            if (SpotFrequenciesUser1.SpotFrequencyEnabled)
             {
-                SSAX.SetPhaseNoise_DecadeEdges(Channel, mnum, DecadeEdges);
-            }
-            else
-            {
-                SSAX.SetPhaseNoise_DecadeEdges(Channel, mnum, DecadeEdges);
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 1, SpotFrequenciesUser1.SpotFrequency);
-                SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 1, SpotFrequenciesUser1.SpotFrequencyEnabled);
+            }
+
+            SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 2, SpotFrequenciesUser2.SpotFrequencyEnabled);
+            if (SpotFrequenciesUser2.SpotFrequencyEnabled)
+            {
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 2, SpotFrequenciesUser2.SpotFrequency);
-                SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 2, SpotFrequenciesUser2.SpotFrequencyEnabled);
+            }
+
+            SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 3, SpotFrequenciesUser3.SpotFrequencyEnabled);
+            if (SpotFrequenciesUser3.SpotFrequencyEnabled)
+            {
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 3, SpotFrequenciesUser3.SpotFrequency);
-                SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 3, SpotFrequenciesUser3.SpotFrequencyEnabled);
+            }
+
+            SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 4, SpotFrequenciesUser4.SpotFrequencyEnabled);
+            if (SpotFrequenciesUser4.SpotFrequencyEnabled)
+            {
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 4, SpotFrequenciesUser4.SpotFrequency);
-                SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 4, SpotFrequenciesUser4.SpotFrequencyEnabled);
+            }
+
+            SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 5, SpotFrequenciesUser5.SpotFrequencyEnabled);
+            if (SpotFrequenciesUser5.SpotFrequencyEnabled)
+            {
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 5, SpotFrequenciesUser5.SpotFrequency);
-                SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 5, SpotFrequenciesUser5.SpotFrequencyEnabled);
+            }
+
+            SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 6, SpotFrequenciesUser6.SpotFrequencyEnabled);
+            if (SpotFrequenciesUser6.SpotFrequencyEnabled)
+            {
                 SSAX.SetPhaseNoise_SpotFrequency(Channel, mnum, 6, SpotFrequenciesUser6.SpotFrequency);
-                SSAX.SetPhaseNoise_SpotFrequencyEnabled(Channel, mnum, 6, SpotFrequenciesUser6.SpotFrequencyEnabled);
             }
 
             UpgradeVerdict(Verdict.Pass);

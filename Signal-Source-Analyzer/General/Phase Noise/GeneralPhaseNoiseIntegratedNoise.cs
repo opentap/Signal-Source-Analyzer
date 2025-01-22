@@ -92,40 +92,51 @@ namespace Signal_Source_Analyzer
             SSAX.SetPhaseNoise_ShowIntegratedNoiseTable(wnum, ShowIntegratedNoiseTable);
 
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange1.IntegratedRangeType);
-            SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange1.Start);
-            SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange1.Stop);
-            if (IntegratedNoiseTableRange1.WeighthingFilter != "None")
+            if (IntegratedNoiseTableRange1.IntegratedRangeType != PhaseNoise_IntegratedRangeTypeEnum.OFF)
             {
-                SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange1.WeighthingFilter);
+                SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange1.Start);
+                SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange1.Stop);
+                if (IntegratedNoiseTableRange1.WeighthingFilter != "None")
+                {
+                    SSAX.SetPhaseNoise_WeightingFilter(Channel, mnum, range, IntegratedNoiseTableRange1.WeighthingFilter);
+                }
             }
 
             range = 2;
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange2.IntegratedRangeType);
-            SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange2.Start);
-            SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange2.Stop);
-            if (IntegratedNoiseTableRange2.WeighthingFilter != "None")
+            if (IntegratedNoiseTableRange2.IntegratedRangeType != PhaseNoise_IntegratedRangeTypeEnum.OFF)
             {
-                SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange2.WeighthingFilter);
+                SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange2.Start);
+                SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange2.Stop);
+                if (IntegratedNoiseTableRange2.WeighthingFilter != "None")
+                {
+                    SSAX.SetPhaseNoise_WeightingFilter(Channel, mnum, range, IntegratedNoiseTableRange2.WeighthingFilter);
+                }
             }
 
             range = 3;
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange3.IntegratedRangeType);
-            SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange3.Start);
-            SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange3.Stop);
-            if (IntegratedNoiseTableRange3.WeighthingFilter != "None")
+            if (IntegratedNoiseTableRange3.IntegratedRangeType != PhaseNoise_IntegratedRangeTypeEnum.OFF)
             {
-                SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange3.WeighthingFilter);
+                SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange3.Start);
+                SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange3.Stop);
+                if (IntegratedNoiseTableRange3.WeighthingFilter != "None")
+                {
+                    SSAX.SetPhaseNoise_WeightingFilter(Channel, mnum, range, IntegratedNoiseTableRange3.WeighthingFilter);
+                }
             }
 
             range = 4;
             SSAX.SetPhaseNoise_IntegratedRangeType(Channel, mnum, range, IntegratedNoiseTableRange4.IntegratedRangeType);
-            SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange4.Start);
-            SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange4.Stop);
-            if (IntegratedNoiseTableRange4.WeighthingFilter != "None")
+            if (IntegratedNoiseTableRange4.IntegratedRangeType != PhaseNoise_IntegratedRangeTypeEnum.OFF)
             {
-                SSAX.SetPhaseNoise_WeighthingFilter(Channel, mnum, range, IntegratedNoiseTableRange4.WeighthingFilter);
+                SSAX.SetPhaseNoise_Start(Channel, mnum, range, IntegratedNoiseTableRange4.Start);
+                SSAX.SetPhaseNoise_Stop(Channel, mnum, range, IntegratedNoiseTableRange4.Stop);
+                if (IntegratedNoiseTableRange4.WeighthingFilter != "None")
+                {
+                    SSAX.SetPhaseNoise_WeightingFilter(Channel, mnum, range, IntegratedNoiseTableRange4.WeighthingFilter);
+                }
             }
-
 
             UpgradeVerdict(Verdict.Pass);
         }

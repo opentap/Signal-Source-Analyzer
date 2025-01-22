@@ -58,6 +58,31 @@ namespace Signal_Source_Analyzer
         Source2Out,
     }
 
+    public enum PhaseNoiseIntegratedNoiseDataEnum
+    {
+        [Scpi("IPN")]
+        [Display("Integrated Phase Noise")]
+        IPN,
+        [Scpi("RFM")]
+        [Display("Residual FM")]
+        RFM,
+        [Scpi("RAM")]
+        [Display("Residual AM")]
+        RAM,
+        [Scpi("RPM")]
+        [Display("Residual PM")]
+        RPM,
+        [Scpi("RMSJ")]
+        [Display("RMS Jitter")]
+        RMSJ,
+        [Scpi("RMSR")]
+        [Display("RMS Radian")]
+        RMSR,
+        [Scpi("RMSD")]
+        [Display("RMS Degree")]
+        RMSD,
+    }
+
     public class ThresholdTable
     {
         [Display("Start Freq", Order: 1)]
@@ -79,6 +104,13 @@ namespace Signal_Source_Analyzer
     {
         [Display("Spurious Freq", Order: 1)]
         public double SpuriousFrequency { get; set; }
+    }
+
+    public class DetectedSpur
+    {
+        public double Frequency { get; set; }
+        public double Power { get; set; }
+        public double Jitter { get; set; }
     }
 
     public partial class SSAX : PNAX
@@ -464,6 +496,53 @@ namespace Signal_Source_Analyzer
         {
             return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:OSSPur:STATe?");
         }
+
+        public List<DetectedSpur> GetPhaseNoise_SpuriousData(int Channel, int mnum)
+        {
+            List<DetectedSpur> detectedSpurs = new List<DetectedSpur>();
+
+            string data = "";
+            try
+            {
+                data = ScpiQuery($"CALCulate{Channel}:MEASure{mnum}:PN:SPURious:DATA?");
+            }
+            catch (Exception e)
+            {
+                // most likely there is not a spur detected, continue for now
+            }
+
+            if (data.Equals(""))
+            {
+                // No spurs detected
+
+            }
+            else
+            {
+                // split data by comma
+                string[] dataSplit = data.Split(',');
+
+                // This should be a multiple of 3
+                if (dataSplit.Length % 3 != 0)
+                {
+                    throw new Exception("Spurious data is not a multiple of 3");
+                }
+
+                // Number of spurs is the length of the data divided by 3
+                int numSpurs = dataSplit.Length / 3;
+
+                // Create a detected spur for every 3 elements
+                for (int i = 0; i < numSpurs; i++)
+                {
+                    DetectedSpur detectedSpur = new DetectedSpur();
+                    detectedSpur.Frequency = double.Parse(dataSplit[i * 3]);
+                    detectedSpur.Power = double.Parse(dataSplit[i * 3 + 1]);
+                    detectedSpur.Jitter = double.Parse(dataSplit[i * 3 + 2]);
+                    detectedSpurs.Add(detectedSpur);
+                }
+            }
+
+            return detectedSpurs;
+        }
         #endregion
 
         #region Integrated Noise
@@ -509,14 +588,20 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PN:INTegral:RANGe{range}:STOP?");
         }
 
-        public void SetPhaseNoise_WeighthingFilter(int Channel, int mnum, int range, string FilterName)
+        public void SetPhaseNoise_WeightingFilter(int Channel, int mnum, int range, string FilterName)
         {
             ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:INTegral:RANGe{range}:WEIGhting \"{FilterName}\"");
         }
 
-        public String GetPhaseNoise_WeighthingFilter(int Channel, int mnum, int range)
+        public String GetPhaseNoise_WeightingFilter(int Channel, int mnum, int range)
         {
             return ScpiQuery<String>($"CALCulate{Channel}:MEASure{mnum}:PN:INTegral:RANGe{range}:WEIGhting?");
+        }
+
+        public double GetPhaseNoise_IntegratedNoise(int Channel, int mnum, int range, PhaseNoiseIntegratedNoiseDataEnum noiseDataEnum)
+        {
+            string noiseData = Scpi.Format("{0}", noiseDataEnum);
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PN:INTegral:RANGe{range}:DATA? {noiseData}");
         }
         #endregion
 
@@ -532,6 +617,13 @@ namespace Signal_Source_Analyzer
             return ScpiQuery<bool>($"DISPlay:WINDow{wnum}:TABLe:SNOise:ENABle?");
         }
 
+        public void SetPhaseNoise_SpotNoiseEnable(int Channel, int mnum, bool State)
+        {
+            string StateValue = State ? "1" : "0";
+            ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:STATe {StateValue}");
+        }
+
+
         public void SetPhaseNoise_SpotFrequency(int Channel, int mnum, int user, double value)
         {
             ScpiCommand($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:USER{user}:X {value}");
@@ -539,7 +631,12 @@ namespace Signal_Source_Analyzer
 
         public double GetPhaseNoise_SpotFrequency(int Channel, int mnum, int user)
         {
-            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOiseUSER{user}:X?");
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:USER{user}:X?");
+        }
+
+        public double GetPhaseNoise_SpotFrequencyValue(int Channel, int mnum, int user)
+        {
+            return ScpiQuery<double>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:USER{user}:Y?");
         }
 
         public void SetPhaseNoise_SpotFrequencyEnabled(int Channel, int mnum, int user, bool State)
@@ -550,7 +647,7 @@ namespace Signal_Source_Analyzer
 
         public bool GetPhaseNoise_SpotFrequencyEnabled(int Channel, int mnum, int user)
         {
-            return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOiseUSER{user}:STATe?");
+            return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:USER{user}:STATe?");
         }
 
         public void SetPhaseNoise_DecadeEdges(int Channel, int mnum, bool State)
@@ -562,6 +659,26 @@ namespace Signal_Source_Analyzer
         public bool GetPhaseNoise_DecadeEdges(int Channel, int mnum)
         {
             return ScpiQuery<bool>($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:DECades:STATe?");
+        }
+
+        public List<double> GetPhaseNoise_DecadeX(int Channel, int mnum)
+        {
+            List<double> freqs = new List<double>();
+
+            string data = ScpiQuery($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:DECades:X?");
+            freqs = data.Split(',').Select(double.Parse).ToList();
+
+            return freqs;
+        }
+
+        public List<double> GetPhaseNoise_DecadeY(int Channel, int mnum)
+        {
+            List<double> ys = new List<double>();
+
+            string data = ScpiQuery($"CALCulate{Channel}:MEASure{mnum}:PN:SNOise:DECades:Y?");
+            ys = data.Split(',').Select(double.Parse).ToList();
+
+            return ys;
         }
         #endregion
 
